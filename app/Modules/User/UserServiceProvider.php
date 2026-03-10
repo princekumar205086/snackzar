@@ -29,7 +29,7 @@ class UserServiceProvider extends ServiceProvider
         }
 
         if (file_exists("{$modulePath}/routes/api.php")) {
-            Route::middleware(['api', 'auth:sanctum'])
+            Route::middleware(['api'])
                 ->prefix('api/v1/user')
                 ->name('api.user.')
                 ->group("{$modulePath}/routes/api.php");
