@@ -1,9 +1,13 @@
 <?php
 
+use App\Modules\User\Controllers\AddressController;
 use App\Modules\User\Controllers\AuthController;
+use App\Modules\User\Controllers\CategoryController;
+use App\Modules\User\Controllers\ProductController;
+use App\Modules\User\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
-// Public auth routes
+// Public routes
 Route::prefix('auth')->group(function () {
     Route::post('/register', [AuthController::class, 'register'])->name('register');
     Route::post('/login', [AuthController::class, 'login'])->name('login');
@@ -13,10 +17,35 @@ Route::prefix('auth')->group(function () {
     Route::post('/reset-password', [AuthController::class, 'resetPassword'])->name('password.reset');
 });
 
-// Protected auth routes
+// Public catalog routes
+Route::get('/categories', [CategoryController::class, 'index'])->name('categories.index');
+Route::get('/categories/{slug}', [CategoryController::class, 'show'])->name('categories.show');
+Route::get('/products', [ProductController::class, 'index'])->name('products.index');
+Route::get('/products/featured', [ProductController::class, 'featured'])->name('products.featured');
+Route::get('/products/{slug}', [ProductController::class, 'show'])->name('products.show');
+Route::get('/products/{slug}/related', [ProductController::class, 'related'])->name('products.related');
+
+// Protected routes
 Route::middleware('auth:sanctum')->group(function () {
+    // Auth
     Route::post('/auth/logout', [AuthController::class, 'logout'])->name('logout');
     Route::get('/auth/user', [AuthController::class, 'user'])->name('user');
     Route::post('/auth/email/verify', [AuthController::class, 'verifyEmail'])->name('email.verify');
     Route::post('/auth/email/resend', [AuthController::class, 'resendVerificationEmail'])->name('email.resend');
+
+    // Profile
+    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.password');
+    Route::delete('/profile', [ProfileController::class, 'deleteAccount'])->name('profile.delete');
+
+    // Addresses
+    Route::apiResource('addresses', AddressController::class)->names([
+        'index' => 'addresses.index',
+        'store' => 'addresses.store',
+        'show' => 'addresses.show',
+        'update' => 'addresses.update',
+        'destroy' => 'addresses.destroy',
+    ]);
+    Route::patch('/addresses/{address}/default', [AddressController::class, 'setDefault'])->name('addresses.default');
 });
