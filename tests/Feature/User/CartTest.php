@@ -180,5 +180,5 @@ test('cart total is calculated correctly', function () {
 
     $response->assertStatus(200);
     // 2 * 250 + 3 * 100 = 800
-    expect($response->json('data.total'))->toBe(800.0);
+    expect((float) $response->json('data.total'))->toBe(800.0);
 });

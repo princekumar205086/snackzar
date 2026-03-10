@@ -4,6 +4,7 @@ use App\Modules\User\Controllers\AddressController;
 use App\Modules\User\Controllers\AuthController;
 use App\Modules\User\Controllers\CartController;
 use App\Modules\User\Controllers\CategoryController;
+use App\Modules\User\Controllers\OrderController;
 use App\Modules\User\Controllers\ProductController;
 use App\Modules\User\Controllers\ProfileController;
 use App\Modules\User\Controllers\ReviewController;
@@ -71,4 +72,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // Orders
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 });
