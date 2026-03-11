@@ -2,6 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ProductCard from '@/Components/ProductCard.vue';
 import CategoryCard from '@/Components/CategoryCard.vue';
+import DeliveryCheck from '@/Components/DeliveryCheck.vue';
 import { Link } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -74,7 +75,7 @@ const testimonials = [
             <div class="absolute inset-0 opacity-10">
                 <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.4&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"></div>
             </div>
-            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-32">
+            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
                 <div class="grid lg:grid-cols-2 gap-12 items-center">
                     <div>
                         <div class="inline-flex items-center gap-2 bg-amber-700/50 text-amber-200 text-sm font-medium px-4 py-1.5 rounded-full mb-6 backdrop-blur-sm">
@@ -94,6 +95,11 @@ const testimonials = [
                             <Link href="/products?featured=1" class="border-2 border-amber-400/50 text-amber-100 px-8 py-3.5 rounded-xl font-semibold text-lg hover:bg-amber-800/50 transition-all backdrop-blur-sm">
                                 Featured Snacks
                             </Link>
+                        </div>
+
+                        <!-- Quick Delivery Check -->
+                        <div class="mt-8 max-w-md bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-amber-400/20">
+                            <DeliveryCheck :dark="true" />
                         </div>
 
                         <!-- Stats -->
@@ -208,6 +214,27 @@ const testimonials = [
             </div>
         </section>
 
+        <!-- New Arrivals -->
+        <section v-if="newArrivals.length > 0" class="py-16 lg:py-20">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-end justify-between mb-10">
+                    <div>
+                        <p class="text-amber-600 font-semibold text-sm uppercase tracking-wider mb-2">Just Landed</p>
+                        <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">New Arrivals</h2>
+                    </div>
+                    <Link href="/products?sort=latest" class="hidden sm:inline-flex items-center gap-1 text-amber-600 font-semibold hover:text-amber-700 transition-colors">
+                        View All
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </Link>
+                </div>
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+                    <ProductCard v-for="product in newArrivals" :key="product.id" :product="product" />
+                </div>
+            </div>
+        </section>
+
         <!-- Why Snackzar Banner -->
         <section class="py-16 lg:py-20 bg-gradient-to-r from-amber-600 to-amber-700">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -270,27 +297,6 @@ const testimonials = [
                             </div>
                         </div>
                     </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- New Arrivals -->
-        <section v-if="newArrivals.length > 0" class="py-16 lg:py-20">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-end justify-between mb-10">
-                    <div>
-                        <p class="text-amber-600 font-semibold text-sm uppercase tracking-wider mb-2">Just Landed</p>
-                        <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">New Arrivals</h2>
-                    </div>
-                    <Link href="/products?sort=latest" class="hidden sm:inline-flex items-center gap-1 text-amber-600 font-semibold hover:text-amber-700 transition-colors">
-                        View All
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
-                    </Link>
-                </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
-                    <ProductCard v-for="product in newArrivals" :key="product.id" :product="product" />
                 </div>
             </div>
         </section>
