@@ -24,7 +24,6 @@ class UserServiceProvider extends ServiceProvider
 
         if (file_exists("{$modulePath}/routes/web.php")) {
             Route::middleware(['web'])
-                ->name('user.')
                 ->group("{$modulePath}/routes/web.php");
         }
 
