@@ -72,6 +72,11 @@ class Order extends Model
         return $this->hasOne(Payment::class);
     }
 
+    public function deliveryAssignment(): HasOne
+    {
+        return $this->hasOne(DeliveryAssignment::class);
+    }
+
     public function isCancellable(): bool
     {
         return in_array($this->status, ['pending', 'confirmed']);

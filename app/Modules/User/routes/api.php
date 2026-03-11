@@ -4,6 +4,8 @@ use App\Modules\User\Controllers\AddressController;
 use App\Modules\User\Controllers\AuthController;
 use App\Modules\User\Controllers\CartController;
 use App\Modules\User\Controllers\CategoryController;
+use App\Modules\User\Controllers\MediaController;
+use App\Modules\User\Controllers\NotificationController;
 use App\Modules\User\Controllers\OrderController;
 use App\Modules\User\Controllers\ProductController;
 use App\Modules\User\Controllers\ProfileController;
@@ -78,4 +80,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
     Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+
+    // Notifications
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+    Route::get('/notifications/unread', [NotificationController::class, 'unread'])->name('notifications.unread');
+    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
+
+    // Media
+    Route::post('/media/upload', [MediaController::class, 'upload'])->name('media.upload');
+    Route::delete('/media', [MediaController::class, 'destroy'])->name('media.destroy');
 });

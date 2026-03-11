@@ -35,4 +35,21 @@ return [
         ],
     ],
 
+    'imagekit' => [
+        'public_key' => env('IMAGEKIT_PUBLIC_KEY'),
+        'private_key' => env('IMAGEKIT_PRIVATE_KEY'),
+        'url_endpoint' => env('IMAGEKIT_URL_ENDPOINT'),
+    ],
+
+    'shiprocket' => [
+        'email' => env('SHIPROCKET_EMAIL'),
+        'password' => env('SHIPROCKET_PASSWORD'),
+        'base_url' => env('SHIPROCKET_BASE_URL', 'https://apiv2.shiprocket.in/v1/external'),
+    ],
+
+    'razorpay' => [
+        'key' => env('RAZORPAY_KEY'),
+        'secret' => env('RAZORPAY_SECRET'),
+    ],
+
 ];
