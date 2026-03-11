@@ -7,6 +7,11 @@ use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Notifications
+ *
+ * APIs for managing user notifications (list, unread count, mark as read).
+ */
 class NotificationController extends Controller
 {
     use ApiResponse;

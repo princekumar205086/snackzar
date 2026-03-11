@@ -160,6 +160,7 @@ test('channel authorization works for order owner', function () {
     $this->actingAs($user)
         ->postJson('/broadcasting/auth', [
             'channel_name' => "private-orders.{$user->id}",
+            'socket_id' => '12345.67890',
         ])
         ->assertOk();
 });
@@ -172,6 +173,7 @@ test('channel authorization rejects non-owner', function () {
     $this->actingAs($user)
         ->postJson('/broadcasting/auth', [
             'channel_name' => "private-orders.{$other->id}",
+            'socket_id' => '12345.67890',
         ])
         ->assertForbidden();
 });

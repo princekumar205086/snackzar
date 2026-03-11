@@ -8,6 +8,11 @@ use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Seller Dashboard
+ *
+ * APIs for the seller dashboard (profile, stats, payout history).
+ */
 class SellerDashboardController extends Controller
 {
     use ApiResponse;

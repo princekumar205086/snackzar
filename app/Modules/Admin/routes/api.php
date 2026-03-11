@@ -1,5 +1,6 @@
 <?php
 
+use App\Modules\Admin\Controllers\AdminBlogController;
 use App\Modules\Admin\Controllers\AdminCategoryController;
 use App\Modules\Admin\Controllers\AdminDashboardController;
 use App\Modules\Admin\Controllers\AdminOrderController;
@@ -35,3 +36,10 @@ Route::get('/categories', [AdminCategoryController::class, 'index'])->name('cate
 Route::post('/categories', [AdminCategoryController::class, 'store'])->name('categories.store');
 Route::put('/categories/{category}', [AdminCategoryController::class, 'update'])->name('categories.update');
 Route::delete('/categories/{category}', [AdminCategoryController::class, 'destroy'])->name('categories.destroy');
+
+// Blog
+Route::get('/blog', [AdminBlogController::class, 'index'])->name('blog.index');
+Route::post('/blog', [AdminBlogController::class, 'store'])->name('blog.store');
+Route::get('/blog/{post}', [AdminBlogController::class, 'show'])->name('blog.show');
+Route::put('/blog/{post}', [AdminBlogController::class, 'update'])->name('blog.update');
+Route::delete('/blog/{post}', [AdminBlogController::class, 'destroy'])->name('blog.destroy');

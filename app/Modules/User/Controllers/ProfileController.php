@@ -10,6 +10,11 @@ use App\Modules\User\Services\ProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group User Profile
+ *
+ * APIs for viewing and updating user profile, changing password, and deleting account.
+ */
 class ProfileController extends Controller
 {
     use ApiResponse;

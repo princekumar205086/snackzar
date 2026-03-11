@@ -7,6 +7,11 @@ use App\Modules\Shared\Services\CategoryService;
 use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @group Categories
+ *
+ * APIs for browsing product categories.
+ */
 class CategoryController extends Controller
 {
     use ApiResponse;

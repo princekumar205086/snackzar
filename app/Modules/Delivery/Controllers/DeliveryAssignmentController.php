@@ -8,6 +8,11 @@ use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Delivery Assignments
+ *
+ * APIs for delivery partners to manage assignments (list, accept, update status, complete).
+ */
 class DeliveryAssignmentController extends Controller
 {
     use ApiResponse;

@@ -7,6 +7,11 @@ use App\Modules\Admin\Services\AdminSellerService;
 use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 
+/**
+ * @group Admin Dashboard
+ *
+ * APIs for the admin dashboard (platform stats, revenue, analytics).
+ */
 class AdminDashboardController extends Controller
 {
     use ApiResponse;

@@ -16,6 +16,11 @@ use App\Modules\User\Services\AuthService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Authentication
+ *
+ * APIs for user registration, login, logout, OTP, password reset, and email verification.
+ */
 class AuthController extends Controller
 {
     use ApiResponse;

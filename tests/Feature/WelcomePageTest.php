@@ -12,7 +12,7 @@ test('welcome page renders inertia component', function () {
     $response = $this->get('/');
 
     $response->assertInertia(fn (AssertableInertia $page) =>
-        $page->component('Welcome')
+        $page->component('Home')
     );
 });
 

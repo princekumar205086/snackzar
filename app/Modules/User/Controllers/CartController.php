@@ -8,6 +8,11 @@ use App\Modules\User\Services\CartService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Cart
+ *
+ * APIs for managing the shopping cart (view, add, update quantity, remove, clear).
+ */
 class CartController extends Controller
 {
     use ApiResponse;

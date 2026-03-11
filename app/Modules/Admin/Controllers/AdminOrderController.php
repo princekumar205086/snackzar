@@ -8,6 +8,11 @@ use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Admin Orders
+ *
+ * APIs for admin order management (list, detail, status updates).
+ */
 class AdminOrderController extends Controller
 {
     use ApiResponse;

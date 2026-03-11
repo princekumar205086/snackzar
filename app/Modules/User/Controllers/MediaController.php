@@ -8,6 +8,11 @@ use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Media
+ *
+ * APIs for uploading and deleting media files (images).
+ */
 class MediaController extends Controller
 {
     use ApiResponse;

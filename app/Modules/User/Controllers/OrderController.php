@@ -8,6 +8,11 @@ use App\Modules\User\Services\OrderService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Orders
+ *
+ * APIs for placing orders, viewing order history, and cancelling orders.
+ */
 class OrderController extends Controller
 {
     use ApiResponse;

@@ -8,6 +8,11 @@ use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Products
+ *
+ * APIs for browsing the product catalog (list with filters, detail, featured, related).
+ */
 class ProductController extends Controller
 {
     use ApiResponse;

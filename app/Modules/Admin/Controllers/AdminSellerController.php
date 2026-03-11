@@ -8,6 +8,11 @@ use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Admin Sellers & Delivery
+ *
+ * APIs for admin management of sellers and delivery partners (list, approve, suspend, assign delivery).
+ */
 class AdminSellerController extends Controller
 {
     use ApiResponse;

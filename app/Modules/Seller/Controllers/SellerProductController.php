@@ -8,6 +8,11 @@ use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Seller Products
+ *
+ * APIs for sellers to manage their products (CRUD, variants, inventory).
+ */
 class SellerProductController extends Controller
 {
     use ApiResponse;

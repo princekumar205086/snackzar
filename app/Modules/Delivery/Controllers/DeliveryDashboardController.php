@@ -8,6 +8,11 @@ use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Delivery Dashboard
+ *
+ * APIs for delivery partner dashboard (profile, stats, earnings).
+ */
 class DeliveryDashboardController extends Controller
 {
     use ApiResponse;

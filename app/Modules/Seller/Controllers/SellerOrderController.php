@@ -8,6 +8,11 @@ use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Seller Orders
+ *
+ * APIs for sellers to manage incoming orders (list, detail, update status).
+ */
 class SellerOrderController extends Controller
 {
     use ApiResponse;

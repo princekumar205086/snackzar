@@ -9,6 +9,11 @@ use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Admin Categories
+ *
+ * APIs for admin category management (CRUD).
+ */
 class AdminCategoryController extends Controller
 {
     use ApiResponse;

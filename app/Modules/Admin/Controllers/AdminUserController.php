@@ -8,6 +8,11 @@ use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Admin Users
+ *
+ * APIs for admin user management (list, detail, ban/activate users).
+ */
 class AdminUserController extends Controller
 {
     use ApiResponse;

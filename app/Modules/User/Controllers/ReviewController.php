@@ -9,6 +9,11 @@ use App\Modules\User\Services\ReviewService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Reviews
+ *
+ * APIs for product reviews (list, submit, update, delete).
+ */
 class ReviewController extends Controller
 {
     use ApiResponse;

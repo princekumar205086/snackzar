@@ -8,6 +8,11 @@ use App\Modules\User\Services\WishlistService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
+/**
+ * @group Wishlist
+ *
+ * APIs for managing the user's product wishlist (list, toggle, remove).
+ */
 class WishlistController extends Controller
 {
     use ApiResponse;
