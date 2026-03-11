@@ -4,6 +4,9 @@ import ProductCard from '@/Components/ProductCard.vue';
 import DeliveryCheck from '@/Components/DeliveryCheck.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
+import { useCart } from '@/composables/useCart';
+import { useToast } from '@/composables/useToast';
+import { useWishlist } from '@/composables/useWishlist';
 
 const props = defineProps({
     product: { type: Object, required: true },
@@ -14,28 +17,26 @@ const props = defineProps({
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
 
+const { addToCart: cartAdd, updateQuantity, getItemForProductVariant, cartProductIds } = useCart();
+const { show: showToast } = useToast();
+const { isWishlisted, toggleWishlist } = useWishlist();
+
 const selectedImage = ref(0);
 const selectedVariant = ref(null);
 const quantity = ref(1);
 const activeTab = ref('description');
+const addingToCart = ref(false);
+const wishlistLoading = ref(false);
+
+// Stock for the currently selected option
+const currentStock = computed(() => selectedVariant.value?.stock ?? props.product.stock ?? 0);
 
 const images = computed(() => {
     return props.product.images?.length ? props.product.images : [{ url: '/images/placeholder-product.png', alt: props.product.name }];
 });
 
-const currentPrice = computed(() => {
-    if (selectedVariant.value) {
-        return selectedVariant.value.price;
-    }
-    return props.product.price;
-});
-
-const comparePrice = computed(() => {
-    if (selectedVariant.value) {
-        return selectedVariant.value.compare_price;
-    }
-    return props.product.compare_price;
-});
+const currentPrice = computed(() => selectedVariant.value?.price ?? props.product.price);
+const comparePrice = computed(() => selectedVariant.value?.compare_price ?? props.product.compare_price);
 
 const discountPercent = computed(() => {
     if (comparePrice.value && parseFloat(comparePrice.value) > parseFloat(currentPrice.value)) {
@@ -45,54 +46,67 @@ const discountPercent = computed(() => {
 });
 
 const inStock = computed(() => {
-    if (selectedVariant.value) {
-        return selectedVariant.value.stock > 0;
-    }
-    return props.product.stock > 0;
+    return selectedVariant.value ? selectedVariant.value.stock > 0 : props.product.stock > 0;
 });
 
-const formatPrice = (price) => {
-    return new Intl.NumberFormat('en-IN', {
-        style: 'currency',
-        currency: 'INR',
-        minimumFractionDigits: 0,
-        maximumFractionDigits: 0,
-    }).format(price);
-};
+const cartItem = computed(() => getItemForProductVariant(props.product.id, selectedVariant.value?.id ?? null));
+const inCart = computed(() => !!cartItem.value);
+const wishlisted = computed(() => isWishlisted(props.product.id));
 
-const addToCart = async () => {
+const formatPrice = (price) => '₹' + Number(price ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 0 });
+
+async function handleAddToCart() {
     if (!user.value) {
         window.location.href = '/login';
         return;
     }
-
+    const safeQty = Math.min(quantity.value, currentStock.value || 1);
+    addingToCart.value = true;
     try {
-        await window.axios.post('/api/v1/user/cart', {
-            product_id: props.product.id,
-            product_variant_id: selectedVariant.value?.id,
-            quantity: quantity.value,
-        });
-        alert('Added to cart!');
+        await cartAdd(props.product.id, selectedVariant.value?.id ?? null, safeQty);
+        showToast(`${props.product.name} added to cart! 🛒`, 'success');
     } catch (e) {
-        alert(e.response?.data?.message || 'Failed to add to cart');
+        showToast(e.response?.data?.message || 'Failed to add to cart', 'error');
+    } finally {
+        addingToCart.value = false;
     }
-};
+}
 
-const addToWishlist = async () => {
+async function handleCartQty(newQty) {
+    if (!cartItem.value) return;
+    if (newQty > currentStock.value) return; // never exceed actual stock
+    try {
+        await updateQuantity(cartItem.value.id, newQty);
+    } catch {
+        showToast('Could not update quantity', 'error');
+    }
+}
+
+async function addToWishlist() {
     if (!user.value) {
         window.location.href = '/login';
         return;
     }
-
+    wishlistLoading.value = true;
     try {
-        await window.axios.post('/api/v1/user/wishlist', {
-            product_id: props.product.id,
-        });
-        alert('Added to wishlist!');
+        const res = await toggleWishlist(props.product.id);
+        const added = res.data?.added ?? false;
+        showToast(added ? 'Added to wishlist! ❤️' : 'Removed from wishlist', added ? 'success' : 'info');
     } catch (e) {
-        alert(e.response?.data?.message || 'Failed to add to wishlist');
+        showToast(e.response?.data?.message || 'Failed to update wishlist', 'error');
+    } finally {
+        wishlistLoading.value = false;
     }
-};
+}
+
+function shareProduct() {
+    if (navigator.share) {
+        navigator.share({ title: props.product.name, url: window.location.href }).catch(() => {});
+    } else {
+        navigator.clipboard.writeText(window.location.href);
+        showToast('Product link copied! 🔗', 'success');
+    }
+}
 </script>
 
 <template>
@@ -120,7 +134,7 @@ const addToWishlist = async () => {
                         <img
                             :src="images[selectedImage]?.url || images[selectedImage]?.image_url || '/images/placeholder-product.png'"
                             :alt="product.name"
-                            class="w-full h-full object-cover"
+                            class="w-full h-full object-contain p-4"
                         />
                     </div>
                     <!-- Thumbnails -->
@@ -186,34 +200,72 @@ const addToWishlist = async () => {
                     </div>
 
                     <!-- Quantity & Actions -->
-                    <div class="flex flex-wrap items-center gap-4 mb-8">
-                        <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden">
-                            <button @click="quantity = Math.max(1, quantity - 1)" class="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
-                                <svg class scoped="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
-                            </button>
-                            <span class="w-12 text-center font-semibold text-gray-900">{{ quantity }}</span>
-                            <button @click="quantity = Math.min(10, quantity + 1)" class="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                    <div class="space-y-3 mb-8">
+                        <!-- Already in cart: show +/- and go-to-cart -->
+                        <div v-if="inCart" class="flex flex-wrap items-center gap-3">
+                            <div class="flex items-center bg-amber-50 border-2 border-amber-400 rounded-xl overflow-hidden">
+                                <button @click="handleCartQty(cartItem.quantity - 1)"
+                                    class="w-10 h-10 flex items-center justify-center text-amber-600 hover:bg-amber-100 transition-colors font-bold text-lg">−</button>
+                                <span class="w-12 text-center font-bold text-amber-700">{{ cartItem?.quantity }}</span>
+                                <button @click="handleCartQty(cartItem.quantity + 1)"
+                                    :disabled="cartItem.quantity >= currentStock"
+                                    class="w-10 h-10 flex items-center justify-center text-amber-600 hover:bg-amber-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors font-bold text-lg">+</button>
+                            </div>
+                            <a href="/cart" class="flex-1 sm:flex-initial inline-flex items-center justify-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-xl font-bold transition-all shadow-lg shadow-amber-600/25">
+                                🛒 Go to Cart
+                            </a>
+                            <button @click="handleAddToCart" :disabled="addingToCart"
+                                class="px-4 py-3 border-2 border-amber-400 text-amber-700 rounded-xl font-semibold text-sm hover:bg-amber-50 transition-all disabled:opacity-50">
+                                + Add More
                             </button>
                         </div>
 
-                        <button
-                            @click="addToCart"
-                            :disabled="!inStock"
-                            class="flex-1 sm:flex-initial bg-amber-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-amber-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed shadow-lg shadow-amber-600/25"
-                        >
-                            {{ inStock ? 'Add to Cart' : 'Out of Stock' }}
-                        </button>
+                        <!-- Not in cart: qty picker + add button -->
+                        <div v-else class="flex flex-wrap items-center gap-3">
+                            <div class="flex items-center border border-gray-200 rounded-xl overflow-hidden">
+                                <button @click="quantity = Math.max(1, quantity - 1)"
+                                    class="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-50 transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" /></svg>
+                                </button>
+                                <span class="w-12 text-center font-semibold text-gray-900">{{ quantity }}</span>
+                                <button @click="quantity = Math.min(currentStock || 10, quantity + 1)"
+                                    :disabled="quantity >= currentStock"
+                                    class="w-10 h-10 flex items-center justify-center text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">
+                                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" /></svg>
+                                </button>
+                            </div>
 
-                        <button
-                            @click="addToWishlist"
-                            class="w-12 h-12 border-2 border-gray-200 rounded-xl flex items-center justify-center text-gray-400 hover:text-red-500 hover:border-red-200 transition-all"
-                            title="Add to Wishlist"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                            </svg>
-                        </button>
+                            <button @click="handleAddToCart" :disabled="!inStock || addingToCart"
+                                class="flex-1 sm:flex-initial bg-amber-600 text-white px-8 py-3 rounded-xl font-bold hover:bg-amber-700 transition-all disabled:opacity-50 shadow-lg shadow-amber-600/25 flex items-center justify-center gap-2">
+                                <svg v-if="addingToCart" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                </svg>
+                                {{ addingToCart ? 'Adding…' : (inStock ? 'Add to Cart' : 'Out of Stock') }}
+                            </button>
+
+                            <button @click="addToWishlist" :disabled="wishlistLoading"
+                                class="w-12 h-12 border-2 rounded-xl flex items-center justify-center transition-all disabled:opacity-50"
+                                :class="wishlisted ? 'border-red-400 bg-red-50 text-red-500' : 'border-gray-200 text-gray-400 hover:text-red-500 hover:border-red-200'"
+                                title="Add to Wishlist">
+                                <svg class="w-5 h-5" :fill="wishlisted ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                </svg>
+                            </button>
+
+                            <button @click="shareProduct"
+                                class="w-12 h-12 border-2 border-gray-200 rounded-xl flex items-center justify-center text-gray-400 hover:text-blue-500 hover:border-blue-200 transition-all"
+                                title="Share Product">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                                </svg>
+                            </button>
+                        </div>
+
+                        <!-- Stock info -->
+                        <p v-if="inStock && currentStock <= 10" class="text-xs text-orange-500 font-medium">
+                            ⚠️ Only {{ currentStock }} left in stock!
+                        </p>
                     </div>
 
                     <!-- Stock & SKU -->

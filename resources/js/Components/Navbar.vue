@@ -1,275 +1,371 @@
 <script setup>
 import { Link, usePage, router } from '@inertiajs/vue3';
-import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { useCart } from '@/composables/useCart';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
+const { cartCount, cartTotal } = useCart();
+
 const mobileMenuOpen = ref(false);
-const searchOpen = ref(false);
 const searchQuery = ref('');
-const searchInput = ref(null);
 const profileMenuOpen = ref(false);
-
-const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'Products', href: '/products' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'About', href: '/about' },
-    { name: 'Contact', href: '/contact' },
-];
-
-const openSearch = () => {
-    searchOpen.value = true;
-    setTimeout(() => searchInput.value?.focus(), 100);
-};
-
-const closeSearch = () => {
-    searchOpen.value = false;
-    searchQuery.value = '';
-};
+const pincodeOpen = ref(false);
+const pincode = ref('');
+const pincodeResult = ref(null);
+const pincodeChecking = ref(false);
+const pincodeError = ref('');
+const savedPincode = ref(localStorage.getItem('delivery_pincode') || '');
+const savedCity = ref(localStorage.getItem('delivery_city') || '');
 
 const submitSearch = () => {
     if (searchQuery.value.trim()) {
         router.get('/products', { search: searchQuery.value.trim() });
-        closeSearch();
         mobileMenuOpen.value = false;
     }
 };
 
 const handleKeydown = (e) => {
-    if (e.key === 'Escape') closeSearch();
-    if (e.key === '/' && !searchOpen.value && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
-        e.preventDefault();
-        openSearch();
+    if (e.key === 'Escape') {
+        pincodeOpen.value = false;
+        profileMenuOpen.value = false;
     }
 };
+
+const serviceablePincodes = {
+    '800001': 'Patna', '800002': 'Patna', '800003': 'Patna', '800004': 'Patna',
+    '800005': 'Patna', '800006': 'Patna', '800007': 'Patna', '800008': 'Patna',
+    '846004': 'Darbhanga', '842001': 'Muzaffarpur', '823001': 'Gaya',
+    '812001': 'Bhagalpur', '845401': 'Motihari', '854301': 'Purnia',
+    '110001': 'New Delhi', '110002': 'New Delhi', '201301': 'Noida',
+    '122001': 'Gurgaon', '400001': 'Mumbai', '400050': 'Mumbai',
+    '560001': 'Bangalore', '700001': 'Kolkata', '500001': 'Hyderabad',
+    '600001': 'Chennai', '411001': 'Pune', '226001': 'Lucknow',
+};
+
+function checkPincode() {
+    const cleaned = pincode.value.trim();
+    pincodeError.value = '';
+    pincodeResult.value = null;
+    if (!/^\d{6}$/.test(cleaned)) {
+        pincodeError.value = 'Enter a valid 6-digit pincode';
+        return;
+    }
+    pincodeChecking.value = true;
+    setTimeout(() => {
+        const city = serviceablePincodes[cleaned];
+        const prefix = cleaned.substring(0, 2);
+        const biharPrefixes = ['80', '81', '82', '83', '84', '85', '86'];
+        if (city || biharPrefixes.includes(prefix) || parseInt(cleaned) >= 100000) {
+            const resolvedCity = city || (biharPrefixes.includes(prefix) ? 'Bihar' : 'India');
+            pincodeResult.value = { available: true, city: resolvedCity };
+            savedPincode.value = cleaned;
+            savedCity.value = resolvedCity;
+            localStorage.setItem('delivery_pincode', cleaned);
+            localStorage.setItem('delivery_city', resolvedCity);
+        } else {
+            pincodeResult.value = { available: false };
+        }
+        pincodeChecking.value = false;
+    }, 500);
+}
+
+const formatPrice = (price) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', minimumFractionDigits: 0 }).format(price);
 
 onMounted(() => document.addEventListener('keydown', handleKeydown));
 onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
 </script>
 
 <template>
-    <nav class="bg-white/95 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-amber-100/80">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex justify-between h-14 lg:h-16">
-                <!-- Logo -->
-                <div class="flex items-center">
-                    <Link href="/" class="flex items-center gap-2">
-                        <span class="text-xl lg:text-2xl">🥜</span>
-                        <span class="text-lg lg:text-xl font-bold text-amber-900 tracking-tight">Snackzar</span>
-                    </Link>
-                </div>
-
-                <!-- Desktop Navigation -->
-                <div class="hidden lg:flex items-center gap-1">
-                    <Link
-                        v-for="item in navigation"
-                        :key="item.name"
-                        :href="item.href"
-                        class="text-sm font-medium px-3 py-2 rounded-lg transition-colors relative"
-                        :class="($page.url === item.href || (item.href !== '/' && $page.url.startsWith(item.href)))
-                            ? 'text-amber-700 bg-amber-50'
-                            : 'text-gray-600 hover:text-amber-600 hover:bg-amber-50/50'"
-                    >
-                        {{ item.name }}
-                    </Link>
-                </div>
-
-                <!-- Right Actions -->
-                <div class="flex items-center gap-1 lg:gap-2">
-                    <!-- Search Trigger -->
-                    <button
-                        @click="openSearch"
-                        class="p-2 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                        title="Search (Press /)"
-                    >
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                    </button>
-
-                    <!-- Desktop Search Shortcut Badge -->
-                    <button
-                        @click="openSearch"
-                        class="hidden lg:flex items-center gap-2 text-sm text-gray-400 border border-gray-200 rounded-lg px-3 py-1.5 hover:border-amber-300 hover:text-amber-600 transition-colors"
-                    >
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        <span>Search products...</span>
-                        <kbd class="text-xs bg-gray-100 px-1.5 py-0.5 rounded font-mono">/</kbd>
-                    </button>
-
-                    <template v-if="user">
-                        <!-- Cart -->
-                        <Link
-                            href="/cart"
-                            class="p-2 text-gray-500 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors relative hidden lg:flex"
-                            title="Cart"
-                        >
-                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
-                            </svg>
-                        </Link>
-
-                        <!-- Profile Menu (Desktop) -->
-                        <div class="relative hidden lg:block">
-                            <button
-                                @click="profileMenuOpen = !profileMenuOpen"
-                                @blur="setTimeout(() => profileMenuOpen = false, 150)"
-                                class="flex items-center gap-2 p-1.5 rounded-lg hover:bg-amber-50 transition-colors"
-                            >
-                                <span class="w-8 h-8 bg-amber-100 text-amber-700 rounded-full flex items-center justify-center text-sm font-semibold">
-                                    {{ user.name?.charAt(0)?.toUpperCase() }}
-                                </span>
-                                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                                </svg>
-                            </button>
-                            <Transition
-                                enter-active-class="transition ease-out duration-100"
-                                enter-from-class="opacity-0 scale-95"
-                                enter-to-class="opacity-100 scale-100"
-                                leave-active-class="transition ease-in duration-75"
-                                leave-from-class="opacity-100 scale-100"
-                                leave-to-class="opacity-0 scale-95"
-                            >
-                                <div v-if="profileMenuOpen" class="absolute right-0 mt-1 w-48 bg-white rounded-xl shadow-lg border border-gray-100 py-1.5 z-50">
-                                    <div class="px-4 py-2 border-b border-gray-50">
-                                        <p class="text-sm font-medium text-gray-900 truncate">{{ user.name }}</p>
-                                        <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
-                                    </div>
-                                    <Link href="/profile" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700">My Profile</Link>
-                                    <Link href="/orders" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700">My Orders</Link>
-                                    <Link href="/wishlist" class="block px-4 py-2 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700">Wishlist</Link>
-                                    <hr class="my-1 border-gray-100" />
-                                    <Link href="/logout" method="post" as="button" class="block w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">Logout</Link>
-                                </div>
-                            </Transition>
-                        </div>
-                    </template>
-                    <template v-else>
-                        <Link href="/login" class="hidden lg:inline-flex text-sm font-medium text-gray-600 hover:text-amber-600 px-3 py-2 rounded-lg transition-colors">
-                            Sign In
-                        </Link>
-                        <Link href="/register" class="hidden lg:inline-flex bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-semibold hover:bg-amber-700 transition-colors shadow-sm">
-                            Get Started
-                        </Link>
-                    </template>
-
-                    <!-- Mobile Hamburger -->
-                    <button
-                        @click="mobileMenuOpen = !mobileMenuOpen"
-                        class="lg:hidden p-2 text-gray-700 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-colors"
-                    >
-                        <svg v-if="!mobileMenuOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-                        </svg>
-                        <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
-                </div>
-            </div>
+    <div class="sticky top-0 z-50">
+        <!-- Promo Bar -->
+        <div class="bg-amber-600 text-white text-center text-sm py-2 px-4 font-medium">
+            🎉 Free delivery on orders above ₹499 &nbsp;·&nbsp; Authentic Bihari Snacks, Fresh from Source!
         </div>
 
-        <!-- Search Overlay -->
-        <Transition
-            enter-active-class="transition ease-out duration-200"
-            enter-from-class="opacity-0"
-            enter-to-class="opacity-100"
-            leave-active-class="transition ease-in duration-150"
-            leave-from-class="opacity-100"
-            leave-to-class="opacity-0"
-        >
-            <div v-if="searchOpen" class="fixed inset-0 z-[60] bg-black/40 backdrop-blur-sm" @click="closeSearch">
-                <div class="max-w-2xl mx-auto mt-20 px-4" @click.stop>
-                    <div class="bg-white rounded-2xl shadow-2xl overflow-hidden">
-                        <form @submit.prevent="submitSearch" class="flex items-center">
-                            <svg class="w-5 h-5 ml-5 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+        <!-- Main Navbar -->
+        <nav class="bg-white shadow-sm border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <div class="flex items-center gap-3 lg:gap-5 h-16">
+
+                    <!-- Logo -->
+                    <Link href="/" class="flex items-center gap-2 shrink-0">
+                        <span class="text-2xl">🥜</span>
+                        <span class="text-lg font-bold text-amber-800 tracking-tight hidden sm:block">Snackzar</span>
+                    </Link>
+
+                    <!-- Delivery Location (Desktop) -->
+                    <div class="hidden lg:block shrink-0">
+                        <button
+                            @click="pincodeOpen = !pincodeOpen"
+                            class="flex items-center gap-1.5 text-sm text-gray-700 hover:text-amber-700 transition-colors group"
+                        >
+                            <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <div class="text-left">
+                                <p class="text-xs text-gray-400 leading-none">Deliver to</p>
+                                <p class="text-sm font-semibold leading-tight text-gray-800">
+                                    {{ savedPincode ? savedPincode : 'Select location' }}
+                                    <span v-if="savedCity" class="font-normal text-gray-500"> · {{ savedCity }}</span>
+                                </p>
+                            </div>
+                            <svg class="w-3.5 h-3.5 text-gray-400 group-hover:text-amber-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                            </svg>
+                        </button>
+                    </div>
+
+                    <!-- Search Bar (Center) -->
+                    <form @submit.prevent="submitSearch" class="flex-1 relative">
+                        <div class="flex items-center bg-gray-50 border border-gray-200 rounded-full hover:border-amber-400 focus-within:border-amber-500 focus-within:bg-white transition-all shadow-sm">
+                            <svg class="w-4 h-4 ml-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
                             <input
-                                ref="searchInput"
                                 v-model="searchQuery"
                                 type="text"
-                                placeholder="Search for Makhana, Namkeen, Sweets..."
-                                class="flex-1 px-4 py-4 text-lg border-0 focus:ring-0 focus:outline-none placeholder-gray-400"
+                                placeholder='Search for "Makhana", "Namkeen", "Sweets"...'
+                                class="flex-1 bg-transparent border-0 text-sm py-2.5 px-3 focus:ring-0 focus:outline-none placeholder-gray-400"
                             />
                             <button
                                 v-if="searchQuery.trim()"
                                 type="submit"
-                                class="mr-3 bg-amber-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-amber-700 transition-colors"
+                                class="mr-1 bg-amber-600 text-white text-sm font-medium px-4 py-1.5 rounded-full hover:bg-amber-700 transition-colors"
                             >
                                 Search
                             </button>
-                            <button
-                                type="button"
-                                @click="closeSearch"
-                                class="mr-3 p-2 text-gray-400 hover:text-gray-600 transition-colors"
+                        </div>
+                    </form>
+
+                    <!-- Right Actions -->
+                    <div class="flex items-center gap-2 shrink-0">
+
+                        <!-- Profile / Login -->
+                        <template v-if="user">
+                            <div class="relative hidden lg:block">
+                                <button
+                                    @click="profileMenuOpen = !profileMenuOpen"
+                                    class="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-50 transition-colors"
+                                >
+                                    <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                    </svg>
+                                    <span class="text-sm font-medium text-gray-700 max-w-[80px] truncate">{{ user.name?.split(' ')[0] }}</span>
+                                </button>
+                                <Transition
+                                    enter-active-class="transition ease-out duration-100"
+                                    enter-from-class="opacity-0 scale-95 translate-y-1"
+                                    enter-to-class="opacity-100 scale-100 translate-y-0"
+                                    leave-active-class="transition ease-in duration-75"
+                                    leave-from-class="opacity-100 scale-100"
+                                    leave-to-class="opacity-0 scale-95"
+                                >
+                                    <div v-if="profileMenuOpen" v-click-outside="() => profileMenuOpen = false" class="absolute right-0 top-full mt-1 w-52 bg-white rounded-2xl shadow-xl border border-gray-100 py-2 z-50">
+                                        <div class="px-4 py-2.5 border-b border-gray-50">
+                                            <p class="text-sm font-semibold text-gray-900 truncate">{{ user.name }}</p>
+                                            <p class="text-xs text-gray-500 truncate">{{ user.email }}</p>
+                                        </div>
+                                        <Link href="/profile" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors" @click="profileMenuOpen=false">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                                            My Profile
+                                        </Link>
+                                        <Link href="/orders" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors" @click="profileMenuOpen=false">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+                                            My Orders
+                                        </Link>
+                                        <Link href="/wishlist" class="flex items-center gap-2.5 px-4 py-2.5 text-sm text-gray-700 hover:bg-amber-50 hover:text-amber-700 transition-colors" @click="profileMenuOpen=false">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/></svg>
+                                            Wishlist
+                                        </Link>
+                                        <hr class="my-1.5 border-gray-100"/>
+                                        <Link href="/logout" method="post" as="button" class="flex items-center gap-2.5 w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors">
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                                            Logout
+                                        </Link>
+                                    </div>
+                                </Transition>
+                            </div>
+
+                            <!-- Cart Button -->
+                            <Link
+                                href="/cart"
+                                class="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-full font-semibold text-sm transition-colors shadow-sm"
                             >
-                                <kbd class="text-xs bg-gray-100 px-2 py-1 rounded font-mono">ESC</kbd>
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z"/>
+                                </svg>
+                                <span v-if="cartCount > 0" class="hidden sm:inline">{{ cartCount }} item{{ cartCount > 1 ? 's' : '' }}</span>
+                                <span v-if="cartTotal > 0" class="hidden sm:inline font-bold">· ₹{{ cartTotal }}</span>
+                                <span v-if="cartCount === 0" class="hidden sm:inline">Cart</span>
+                            </Link>
+                        </template>
+
+                        <template v-else>
+                            <Link href="/login" class="hidden lg:flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 hover:text-amber-700 rounded-xl hover:bg-amber-50 transition-colors">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                                </svg>
+                                Login
+                            </Link>
+                            <Link href="/register" class="hidden lg:flex bg-amber-600 hover:bg-amber-700 text-white px-5 py-2.5 rounded-full font-semibold text-sm transition-colors shadow-sm">
+                                Get Started
+                            </Link>
+                        </template>
+
+                        <!-- Mobile menu toggle -->
+                        <button
+                            @click="mobileMenuOpen = !mobileMenuOpen"
+                            class="lg:hidden p-2 text-gray-600 hover:text-amber-700 hover:bg-amber-50 rounded-xl transition-colors"
+                        >
+                            <svg v-if="!mobileMenuOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile Menu -->
+            <Transition
+                enter-active-class="transition ease-out duration-200"
+                enter-from-class="opacity-0 -translate-y-2"
+                enter-to-class="opacity-100 translate-y-0"
+                leave-active-class="transition ease-in duration-150"
+                leave-from-class="opacity-100 translate-y-0"
+                leave-to-class="opacity-0 -translate-y-2"
+            >
+                <div v-if="mobileMenuOpen" class="lg:hidden border-t border-gray-100 bg-white shadow-lg">
+                    <!-- Mobile Location -->
+                    <div class="px-4 pt-3">
+                        <button @click="pincodeOpen = !pincodeOpen" class="flex items-center gap-2 w-full text-left bg-amber-50 rounded-xl px-4 py-3 border border-amber-100">
+                            <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            <span class="text-sm text-gray-700 font-medium">{{ savedPincode ? `${savedPincode} · ${savedCity}` : 'Set delivery location' }}</span>
+                        </button>
+                    </div>
+
+                    <div class="px-4 pt-2 pb-4 space-y-0.5">
+                        <Link href="/" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen=false">Home</Link>
+                        <Link href="/products" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen=false">Products</Link>
+                        <Link href="/blog" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen=false">Blog</Link>
+                        <Link href="/about" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen=false">About</Link>
+                        <Link href="/contact" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen=false">Contact</Link>
+                        <hr class="my-2 border-gray-100"/>
+                        <template v-if="user">
+                            <Link href="/profile" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen=false">Profile</Link>
+                            <Link href="/orders" class="flex items-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen=false">Orders</Link>
+                            <Link href="/cart" class="flex items-center justify-between px-3 py-2.5 rounded-xl text-sm font-medium text-amber-700 bg-amber-50 hover:bg-amber-100" @click="mobileMenuOpen=false">
+                                <span>My Cart</span>
+                                <span v-if="cartCount > 0" class="bg-amber-600 text-white text-xs px-2 py-0.5 rounded-full">{{ cartCount }}</span>
+                            </Link>
+                            <Link href="/logout" method="post" as="button" class="flex items-center w-full px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50" @click="mobileMenuOpen=false">Logout</Link>
+                        </template>
+                        <template v-else>
+                            <Link href="/login" class="block text-center px-3 py-2.5 rounded-xl text-sm font-medium border border-gray-200 text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen=false">Login</Link>
+                            <Link href="/register" class="block text-center px-3 py-2.5 rounded-xl text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700" @click="mobileMenuOpen=false">Get Started</Link>
+                        </template>
+                    </div>
+                </div>
+            </Transition>
+        </nav>
+    </div>
+
+    <!-- Pincode/Delivery Modal -->
+    <Transition
+        enter-active-class="transition ease-out duration-200"
+        enter-from-class="opacity-0"
+        enter-to-class="opacity-100"
+        leave-active-class="transition ease-in duration-150"
+        leave-from-class="opacity-100"
+        leave-to-class="opacity-0"
+    >
+        <div v-if="pincodeOpen" class="fixed inset-0 z-[70] flex items-start justify-end" @click.self="pincodeOpen = false">
+            <div class="bg-white rounded-2xl shadow-2xl border border-gray-100 w-full max-w-sm mt-20 mr-4 lg:mr-8 overflow-hidden">
+                <!-- Header -->
+                <div class="flex items-center justify-between px-5 py-4 border-b border-gray-100">
+                    <div class="flex items-center gap-2">
+                        <button @click="pincodeOpen = false" class="p-1 hover:bg-gray-100 rounded-lg transition-colors">
+                            <svg class="w-5 h-5 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+                            </svg>
+                        </button>
+                        <h3 class="text-base font-semibold text-gray-900">Select delivery location</h3>
+                    </div>
+                </div>
+
+                <div class="p-5 space-y-4">
+                    <!-- Current Location Button -->
+                    <button class="flex items-center gap-3 w-full text-left border border-dashed border-gray-200 rounded-xl px-4 py-3.5 hover:border-amber-400 hover:bg-amber-50/50 transition-all group">
+                        <div class="w-9 h-9 bg-amber-100 rounded-full flex items-center justify-center shrink-0 group-hover:bg-amber-200 transition-colors">
+                            <svg class="w-4 h-4 text-amber-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm font-semibold text-amber-700">+ Use current location</span>
+                    </button>
+
+                    <!-- Pincode Check -->
+                    <div>
+                        <p class="text-sm font-medium text-gray-700 mb-2">Check Pincode Serviceability</p>
+                        <div class="flex gap-2">
+                            <div class="flex-1 relative">
+                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                </svg>
+                                <input
+                                    v-model="pincode"
+                                    type="text"
+                                    maxlength="6"
+                                    inputmode="numeric"
+                                    placeholder="Enter 6-digit Pincode"
+                                    class="w-full pl-9 pr-3 py-3 text-sm border border-gray-200 rounded-xl focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none"
+                                    @keyup.enter="checkPincode"
+                                />
+                            </div>
+                            <button
+                                @click="checkPincode"
+                                :disabled="pincodeChecking"
+                                class="px-5 py-3 bg-amber-600 text-white text-sm font-semibold rounded-xl hover:bg-amber-700 transition-colors disabled:opacity-60"
+                            >
+                                <span v-if="pincodeChecking">
+                                    <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
+                                    </svg>
+                                </span>
+                                <span v-else>Check</span>
                             </button>
-                        </form>
-                        <div class="border-t border-gray-100 px-5 py-3 bg-gray-50">
-                            <p class="text-xs text-gray-400">Popular: <span class="text-amber-600 cursor-pointer hover:underline" @click="searchQuery = 'Makhana'; submitSearch()">Makhana</span> &middot; <span class="text-amber-600 cursor-pointer hover:underline" @click="searchQuery = 'Namkeen'; submitSearch()">Namkeen</span> &middot; <span class="text-amber-600 cursor-pointer hover:underline" @click="searchQuery = 'Sweets'; submitSearch()">Sweets</span></p>
+                        </div>
+
+                        <p v-if="pincodeError" class="mt-2 text-xs text-red-600">{{ pincodeError }}</p>
+
+                        <div v-if="pincodeResult?.available" class="mt-3 flex items-start gap-2 bg-green-50 border border-green-200 rounded-xl p-3">
+                            <svg class="w-5 h-5 text-green-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                            </svg>
+                            <div>
+                                <p class="text-sm font-semibold text-green-800">Delivery available to {{ pincodeResult.city }}!</p>
+                                <p class="text-xs text-green-700 mt-0.5">Location saved. Tap outside to continue.</p>
+                            </div>
+                        </div>
+                        <div v-if="pincodeResult && !pincodeResult.available" class="mt-3 flex items-start gap-2 bg-red-50 border border-red-200 rounded-xl p-3">
+                            <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                            <p class="text-sm text-red-700">Sorry, delivery not available at this pincode yet.</p>
                         </div>
                     </div>
                 </div>
             </div>
-        </Transition>
-
-        <!-- Mobile Slide Menu -->
-        <Transition
-            enter-active-class="transition ease-out duration-200"
-            enter-from-class="opacity-0 -translate-y-2"
-            enter-to-class="opacity-100 translate-y-0"
-            leave-active-class="transition ease-in duration-150"
-            leave-from-class="opacity-100 translate-y-0"
-            leave-to-class="opacity-0 -translate-y-2"
-        >
-            <div v-if="mobileMenuOpen" class="lg:hidden border-t border-amber-100 bg-white shadow-lg">
-                <!-- Mobile Search -->
-                <div class="px-4 pt-3">
-                    <form @submit.prevent="submitSearch" class="flex items-center bg-gray-50 rounded-xl border border-gray-200">
-                        <svg class="w-4 h-4 ml-3 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                        </svg>
-                        <input
-                            v-model="searchQuery"
-                            type="text"
-                            placeholder="Search products..."
-                            class="flex-1 bg-transparent border-0 text-sm py-2.5 px-3 focus:ring-0 focus:outline-none placeholder-gray-400"
-                        />
-                    </form>
-                </div>
-
-                <div class="px-4 pt-2 pb-4 space-y-0.5">
-                    <Link
-                        v-for="item in navigation"
-                        :key="item.name"
-                        :href="item.href"
-                        class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors"
-                        :class="($page.url === item.href || (item.href !== '/' && $page.url.startsWith(item.href)))
-                            ? 'text-amber-700 bg-amber-50'
-                            : 'text-gray-700 hover:bg-gray-50'"
-                        @click="mobileMenuOpen = false"
-                    >
-                        {{ item.name }}
-                    </Link>
-                    <hr class="my-2 border-gray-100" />
-                    <template v-if="user">
-                        <Link href="/profile" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen = false">Profile</Link>
-                        <Link href="/orders" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen = false">Orders</Link>
-                        <Link href="/wishlist" class="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen = false">Wishlist</Link>
-                        <Link href="/logout" method="post" as="button" class="flex items-center gap-3 w-full text-left px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50" @click="mobileMenuOpen = false">Logout</Link>
-                    </template>
-                    <template v-else>
-                        <Link href="/login" class="block text-center px-3 py-2.5 rounded-xl text-sm font-medium text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen = false">Sign In</Link>
-                        <Link href="/register" class="block text-center px-3 py-2.5 rounded-xl text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700" @click="mobileMenuOpen = false">Get Started</Link>
-                    </template>
-                </div>
-            </div>
-        </Transition>
-    </nav>
+        </div>
+    </Transition>
 </template>

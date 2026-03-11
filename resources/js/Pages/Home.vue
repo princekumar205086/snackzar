@@ -2,8 +2,8 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ProductCard from '@/Components/ProductCard.vue';
 import CategoryCard from '@/Components/CategoryCard.vue';
-import DeliveryCheck from '@/Components/DeliveryCheck.vue';
 import { Link } from '@inertiajs/vue3';
+import { ref, onMounted, onUnmounted } from 'vue';
 
 const props = defineProps({
     featuredProducts: { type: Array, default: () => [] },
@@ -23,146 +23,163 @@ const formatPrice = (price) => {
     }).format(price);
 };
 
-const features = [
+// Carousel
+const currentSlide = ref(0);
+const slides = [
     {
-        icon: 'truck',
-        title: 'Free Delivery',
-        description: 'Free shipping on orders above ₹499',
+        tag: 'Fresh from Bihar',
+        title: 'Premium Makhana',
+        highlight: '& Bihari Snacks',
+        desc: 'Hand-picked Makhana, traditional namkeen, and artisanal snacks sourced directly from local farmers.',
+        bg: 'from-amber-50 to-orange-100',
+        accent: 'bg-amber-600',
+        emoji: '🥜',
     },
     {
-        icon: 'shield',
-        title: '100% Authentic',
-        description: 'Sourced directly from Bihar',
+        tag: 'Best Seller',
+        title: 'Roasted & Flavoured',
+        highlight: 'Makhana Range',
+        desc: 'Try our signature Peri Peri, Cheese & Herb, and Classic Salt varieties — crispy, light and healthy.',
+        bg: 'from-orange-50 to-amber-100',
+        accent: 'bg-orange-600',
+        emoji: '🍿',
     },
     {
-        icon: 'refresh',
-        title: 'Easy Returns',
-        description: '7-day hassle-free returns',
-    },
-    {
-        icon: 'lock',
-        title: 'Secure Payment',
-        description: 'Razorpay secured checkout',
+        tag: 'New Arrivals',
+        title: 'Authentic Sattu &',
+        highlight: 'Traditional Sweets',
+        desc: 'Chana Sattu, Tilkut, Khaja and more — celebrating the rich culinary heritage of Bihar.',
+        bg: 'from-yellow-50 to-amber-100',
+        accent: 'bg-yellow-600',
+        emoji: '🍯',
     },
 ];
 
-const testimonials = [
-    {
-        name: 'Priya Sharma',
-        location: 'Delhi',
-        text: 'The Makhana from Snackzar is the crunchiest I\'ve ever had! Truly authentic Bihari taste. Will order again.',
-        rating: 5,
-    },
-    {
-        name: 'Rahul Kumar',
-        location: 'Mumbai',
-        text: 'Fast delivery and excellent packaging. The snacks were fresh and delicious. My family loved them!',
-        rating: 5,
-    },
-    {
-        name: 'Anita Devi',
-        location: 'Bangalore',
-        text: 'Finally found a place that delivers real Bihari snacks. The Sattu and Makhana are outstanding quality.',
-        rating: 4,
-    },
+let slideTimer = null;
+
+const nextSlide = () => { currentSlide.value = (currentSlide.value + 1) % slides.length; };
+const prevSlide = () => { currentSlide.value = (currentSlide.value - 1 + slides.length) % slides.length; };
+const goToSlide = (i) => { currentSlide.value = i; resetTimer(); };
+
+function resetTimer() {
+    clearInterval(slideTimer);
+    slideTimer = setInterval(nextSlide, 4000);
+}
+
+const features = [
+    { icon: '🚚', title: 'Free Delivery', description: 'On orders above ₹499' },
+    { icon: '✅', title: '100% Authentic', description: 'Sourced directly from Bihar' },
+    { icon: '🔄', title: 'Easy Returns', description: '7-day hassle-free returns' },
+    { icon: '🔒', title: 'Secure Payment', description: 'Razorpay secured checkout' },
 ];
+
+const testimonials = [
+    { name: 'Priya Sharma', location: 'Delhi', text: "The Makhana from Snackzar is the crunchiest I've ever had! Truly authentic Bihari taste.", rating: 5 },
+    { name: 'Rahul Kumar', location: 'Mumbai', text: 'Fast delivery and excellent packaging. The snacks were fresh and delicious. My family loved them!', rating: 5 },
+    { name: 'Anita Devi', location: 'Bangalore', text: 'Finally found a place that delivers real Bihari snacks. The Sattu and Makhana are outstanding quality.', rating: 4 },
+];
+
+onMounted(() => { slideTimer = setInterval(nextSlide, 4000); });
+onUnmounted(() => clearInterval(slideTimer));
 </script>
 
 <template>
     <AppLayout title="Premium Bihari Snacks - Makhana & More">
-        <!-- Hero Section -->
-        <section class="relative overflow-hidden bg-gradient-to-br from-amber-900 via-amber-800 to-amber-950">
-            <div class="absolute inset-0 opacity-10">
-                <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.4&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"></div>
-            </div>
-            <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-24">
-                <div class="grid lg:grid-cols-2 gap-12 items-center">
-                    <div>
-                        <div class="inline-flex items-center gap-2 bg-amber-700/50 text-amber-200 text-sm font-medium px-4 py-1.5 rounded-full mb-6 backdrop-blur-sm">
-                            <span class="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-                            Fresh from Bihar
-                        </div>
-                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight mb-6">
-                            Premium <span class="text-amber-300">Makhana</span> &amp; Authentic Bihari Snacks
-                        </h1>
-                        <p class="text-lg text-amber-200 leading-relaxed mb-8 max-w-lg">
-                            Discover the finest selection of hand-picked Makhana, traditional Bihari namkeen, and artisanal snacks. Sourced directly from local farmers, delivered fresh to your doorstep.
-                        </p>
-                        <div class="flex flex-wrap gap-4">
-                            <Link href="/products" class="bg-amber-500 text-amber-950 px-8 py-3.5 rounded-xl font-bold text-lg hover:bg-amber-400 transition-all shadow-lg shadow-amber-500/25 hover:shadow-amber-400/40">
-                                Shop Now
-                            </Link>
-                            <Link href="/products?featured=1" class="border-2 border-amber-400/50 text-amber-100 px-8 py-3.5 rounded-xl font-semibold text-lg hover:bg-amber-800/50 transition-all backdrop-blur-sm">
-                                Featured Snacks
-                            </Link>
-                        </div>
 
-                        <!-- Quick Delivery Check -->
-                        <div class="mt-8 max-w-md bg-white/10 backdrop-blur-sm rounded-xl p-4 border border-amber-400/20">
-                            <DeliveryCheck :dark="true" />
-                        </div>
+        <!-- Hero Carousel -->
+        <section class="relative overflow-hidden bg-white">
+            <div class="relative">
+                <!-- Slides -->
+                <div class="overflow-hidden">
+                    <Transition
+                        enter-active-class="transition-all duration-500"
+                        enter-from-class="opacity-0 translate-x-8"
+                        enter-to-class="opacity-100 translate-x-0"
+                        leave-active-class="transition-all duration-300 absolute inset-0"
+                        leave-from-class="opacity-100"
+                        leave-to-class="opacity-0"
+                        mode="out-in"
+                    >
+                        <div :key="currentSlide" :class="`bg-gradient-to-br ${slides[currentSlide].bg}`" class="w-full">
+                            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 lg:py-16">
+                                <div class="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+                                    <!-- Text -->
+                                    <div>
+                                        <span :class="slides[currentSlide].accent" class="inline-flex items-center gap-1.5 text-white text-xs font-semibold px-3 py-1.5 rounded-full mb-5">
+                                            <span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
+                                            {{ slides[currentSlide].tag }}
+                                        </span>
+                                        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold text-gray-900 leading-tight mb-4">
+                                            {{ slides[currentSlide].title }}<br>
+                                            <span class="text-amber-600">{{ slides[currentSlide].highlight }}</span>
+                                        </h1>
+                                        <p class="text-base lg:text-lg text-gray-600 leading-relaxed mb-8 max-w-lg">
+                                            {{ slides[currentSlide].desc }}
+                                        </p>
+                                        <div class="flex flex-wrap gap-3">
+                                            <Link href="/products" class="bg-amber-600 hover:bg-amber-700 text-white px-7 py-3.5 rounded-full font-bold text-base transition-all shadow-lg shadow-amber-200 hover:shadow-amber-300">
+                                                Shop Now
+                                            </Link>
+                                            <Link href="/products?featured=1" class="bg-white border-2 border-amber-200 text-amber-700 px-7 py-3.5 rounded-full font-semibold text-base hover:border-amber-400 hover:bg-amber-50 transition-all">
+                                                View Featured
+                                            </Link>
+                                        </div>
+                                    </div>
 
-                        <!-- Stats -->
-                        <div class="flex gap-8 mt-12 pt-8 border-t border-amber-700/50">
-                            <div>
-                                <p class="text-3xl font-bold text-white">{{ stats.products || '50' }}+</p>
-                                <p class="text-amber-300 text-sm">Products</p>
-                            </div>
-                            <div>
-                                <p class="text-3xl font-bold text-white">{{ stats.happy_customers || '500' }}+</p>
-                                <p class="text-amber-300 text-sm">Happy Customers</p>
-                            </div>
-                            <div>
-                                <p class="text-3xl font-bold text-white">4.8</p>
-                                <p class="text-amber-300 text-sm">Avg Rating</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Hero Image / Visual -->
-                    <div class="hidden lg:flex items-center justify-center">
-                        <div class="relative">
-                            <div class="w-96 h-96 bg-gradient-to-br from-amber-400/20 to-amber-600/20 rounded-full blur-3xl absolute -inset-10"></div>
-                            <div class="relative w-80 h-80 bg-gradient-to-br from-amber-200 to-amber-400 rounded-full flex items-center justify-center shadow-2xl">
-                                <span class="text-[120px]">🥜</span>
-                            </div>
-                            <div class="absolute -top-4 -right-4 bg-white rounded-2xl p-3 shadow-xl">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-amber-500 font-bold">★ 4.9</span>
-                                    <span class="text-gray-500 text-sm">Rating</span>
-                                </div>
-                            </div>
-                            <div class="absolute -bottom-4 -left-4 bg-white rounded-2xl p-3 shadow-xl">
-                                <div class="flex items-center gap-2">
-                                    <span class="text-xl">🚚</span>
-                                    <span class="text-gray-700 text-sm font-medium">Free Delivery</span>
+                                    <!-- Visual -->
+                                    <div class="flex items-center justify-center">
+                                        <div class="relative">
+                                            <div class="w-72 h-72 lg:w-80 lg:h-80 bg-white/60 backdrop-blur-sm rounded-3xl flex items-center justify-center shadow-2xl border border-white/80">
+                                                <span class="text-[110px] drop-shadow-lg select-none">{{ slides[currentSlide].emoji }}</span>
+                                            </div>
+                                            <!-- Floating badge -->
+                                            <div class="absolute -top-3 -right-3 bg-white rounded-2xl px-4 py-2.5 shadow-xl border border-gray-100">
+                                                <div class="flex items-center gap-1.5">
+                                                    <span class="text-amber-500 font-bold text-sm">★ 4.9</span>
+                                                    <span class="text-gray-500 text-xs">Rating</span>
+                                                </div>
+                                            </div>
+                                            <div class="absolute -bottom-3 -left-3 bg-white rounded-2xl px-4 py-2.5 shadow-xl border border-gray-100">
+                                                <div class="flex items-center gap-1.5">
+                                                    <span class="text-lg">🚚</span>
+                                                    <span class="text-gray-700 text-xs font-semibold">Free Delivery</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </Transition>
+                </div>
+
+                <!-- Controls -->
+                <button @click="prevSlide" class="absolute left-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-amber-700 transition-all border border-gray-100 z-10">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <button @click="nextSlide" class="absolute right-4 top-1/2 -translate-y-1/2 w-10 h-10 bg-white/90 hover:bg-white rounded-full shadow-lg flex items-center justify-center text-gray-700 hover:text-amber-700 transition-all border border-gray-100 z-10">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </button>
+
+                <!-- Dots -->
+                <div class="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center gap-2 z-10">
+                    <button
+                        v-for="(_, i) in slides"
+                        :key="i"
+                        @click="goToSlide(i)"
+                        class="rounded-full transition-all duration-300"
+                        :class="i === currentSlide ? 'w-6 h-2.5 bg-amber-600' : 'w-2.5 h-2.5 bg-gray-300 hover:bg-amber-400'"
+                    ></button>
                 </div>
             </div>
         </section>
 
         <!-- Trust Badges -->
-        <section class="bg-white border-b border-gray-100">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
-                    <div v-for="feature in features" :key="feature.title" class="flex items-center gap-3">
-                        <div class="w-11 h-11 bg-amber-100 text-amber-600 rounded-xl flex items-center justify-center shrink-0">
-                            <svg v-if="feature.icon === 'truck'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                            </svg>
-                            <svg v-if="feature.icon === 'shield'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-                            </svg>
-                            <svg v-if="feature.icon === 'refresh'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-                            </svg>
-                            <svg v-if="feature.icon === 'lock'" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-                            </svg>
-                        </div>
+        <section class="bg-white border-y border-gray-100">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    <div v-for="feature in features" :key="feature.title" class="flex items-center gap-3 py-1">
+                        <span class="text-2xl">{{ feature.icon }}</span>
                         <div>
                             <p class="text-sm font-semibold text-gray-900">{{ feature.title }}</p>
                             <p class="text-xs text-gray-500">{{ feature.description }}</p>
@@ -173,63 +190,47 @@ const testimonials = [
         </section>
 
         <!-- Categories Section -->
-        <section v-if="categories.length > 0" class="py-16 lg:py-20">
+        <section v-if="categories.length > 0" class="py-10 lg:py-14 bg-white">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-end justify-between mb-10">
-                    <div>
-                        <p class="text-amber-600 font-semibold text-sm uppercase tracking-wider mb-2">Browse by Category</p>
-                        <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Shop by Category</h2>
-                    </div>
-                    <Link href="/products" class="hidden sm:inline-flex items-center gap-1 text-amber-600 font-semibold hover:text-amber-700 transition-colors">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl lg:text-3xl font-bold text-gray-900">Shop by Category</h2>
+                    <Link href="/products" class="hidden sm:flex items-center gap-1 text-amber-600 font-semibold text-sm hover:text-amber-700 transition-colors">
                         View All
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                     </Link>
                 </div>
-                <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-3 gap-4 lg:gap-6">
+                <!-- Scrollable category row -->
+                <div class="flex gap-4 overflow-x-auto pb-2 scrollbar-hide lg:grid lg:grid-cols-5 xl:grid-cols-6 lg:gap-5">
                     <CategoryCard v-for="category in categories" :key="category.id" :category="category" />
                 </div>
             </div>
         </section>
 
         <!-- Featured Products -->
-        <section v-if="featuredProducts.length > 0" class="py-16 lg:py-20 bg-white">
+        <section v-if="featuredProducts.length > 0" class="py-10 lg:py-14 bg-white border-t border-gray-100">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-end justify-between mb-10">
-                    <div>
-                        <p class="text-amber-600 font-semibold text-sm uppercase tracking-wider mb-2">Handpicked for You</p>
-                        <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">Featured Snacks</h2>
-                    </div>
-                    <Link href="/products?featured=1" class="hidden sm:inline-flex items-center gap-1 text-amber-600 font-semibold hover:text-amber-700 transition-colors">
-                        View All
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl lg:text-3xl font-bold text-gray-900">Best Deals</h2>
+                    <Link href="/products?featured=1" class="hidden sm:flex items-center gap-1 text-amber-600 font-semibold text-sm hover:text-amber-700 transition-colors">
+                        View All →
                     </Link>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-5">
                     <ProductCard v-for="product in featuredProducts" :key="product.id" :product="product" />
                 </div>
             </div>
         </section>
 
         <!-- New Arrivals -->
-        <section v-if="newArrivals.length > 0" class="py-16 lg:py-20">
+        <section v-if="newArrivals.length > 0" class="py-10 lg:py-14 bg-gray-50">
             <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                <div class="flex items-end justify-between mb-10">
-                    <div>
-                        <p class="text-amber-600 font-semibold text-sm uppercase tracking-wider mb-2">Just Landed</p>
-                        <h2 class="text-3xl lg:text-4xl font-bold text-gray-900">New Arrivals</h2>
-                    </div>
-                    <Link href="/products?sort=latest" class="hidden sm:inline-flex items-center gap-1 text-amber-600 font-semibold hover:text-amber-700 transition-colors">
-                        View All
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
-                        </svg>
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl lg:text-3xl font-bold text-gray-900">New Arrivals</h2>
+                    <Link href="/products?sort=latest" class="hidden sm:flex items-center gap-1 text-amber-600 font-semibold text-sm hover:text-amber-700 transition-colors">
+                        View All →
                     </Link>
                 </div>
-                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 lg:gap-6">
+                <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 lg:gap-5">
                     <ProductCard v-for="product in newArrivals" :key="product.id" :product="product" />
                 </div>
             </div>
