@@ -61,11 +61,21 @@ async function placeOrder() {
             return;
         }
 
-        // Razorpay: first create server-side Razorpay order
-        const rpRes = await window.axios.post('/payment/create-order', {
+        // Razorpay flow:
+        // 1. Create the server-side order to get order_id and total
+        const orderRes = await window.axios.post('/api/v1/user/orders', {
             address_id: selectedAddressId.value,
+            payment_method: 'razorpay',
         });
-        const { razorpay_order_id, amount, currency: rpCurrency, order_id } = rpRes.data;
+        const orderId = orderRes.data.data?.id;
+        const orderTotal = parseFloat(orderRes.data.data?.total ?? 0);
+
+        // 2. Create Razorpay payment order (amount in paise)
+        const rpRes = await window.axios.post('/payment/create-order', {
+            order_id: orderId,
+            amount: Math.round(orderTotal * 100),
+        });
+        const { razorpay_order_id, amount, currency: rpCurrency } = rpRes.data.data ?? rpRes.data;
 
         // Open Razorpay checkout modal
         const options = {
@@ -74,16 +84,16 @@ async function placeOrder() {
             currency: rpCurrency ?? 'INR',
             order_id: razorpay_order_id,
             name: 'SNACKZAR',
-            description: `Order #${order_id}`,
+            description: `Order #${orderId}`,
             handler: async function (response) {
                 // Verify payment
                 await window.axios.post('/payment/verify', {
                     razorpay_payment_id: response.razorpay_payment_id,
                     razorpay_order_id: response.razorpay_order_id,
                     razorpay_signature: response.razorpay_signature,
-                    order_id: order_id,
+                    order_id: orderId,
                 });
-                router.visit(`/orders/${order_id}?success=1`);
+                router.visit(`/orders/${orderId}?success=1`);
             },
             prefill: {},
             theme: { color: '#f59e0b' },

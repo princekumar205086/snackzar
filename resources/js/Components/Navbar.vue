@@ -79,8 +79,9 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
 <template>
     <div class="sticky top-0 z-50">
         <!-- Promo Bar -->
-        <div class="bg-amber-600 text-white text-center text-sm py-2 px-4 font-medium">
-            🎉 Free delivery on orders above ₹499 &nbsp;·&nbsp; Authentic Bihari Snacks, Fresh from Source!
+        <div class="bg-amber-600 text-white text-center text-xs sm:text-sm py-2 px-4 font-medium overflow-hidden">
+            <span class="hidden sm:inline">🎉 Free delivery on orders above ₹499 · Authentic Bihari Snacks, Fresh from Source!</span>
+            <span class="sm:hidden">🎉 Free delivery above ₹499</span>
         </div>
 
         <!-- Main Navbar -->
@@ -217,13 +218,13 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
                         <!-- Mobile menu toggle -->
                         <button
                             @click="mobileMenuOpen = !mobileMenuOpen"
-                            class="lg:hidden p-2 text-gray-600 hover:text-amber-700 hover:bg-amber-50 rounded-xl transition-colors"
+                            class="lg:hidden flex items-center justify-center w-10 h-10 text-gray-800 bg-gray-100 hover:bg-amber-100 hover:text-amber-700 rounded-xl transition-colors border border-gray-200"
                         >
-                            <svg v-if="!mobileMenuOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/>
                             </svg>
-                            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                            <svg v-else class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
                             </svg>
                         </button>
                     </div>

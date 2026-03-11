@@ -11,7 +11,13 @@
         'Segoe UI Symbol', 'Noto Color Emoji';
 }
 
-/* Hide scrollbar for horizontal category row */
+/* Prevent page-level horizontal scroll */
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* Hide scrollbar for horizontal scroll rows */
 .scrollbar-hide {
     -ms-overflow-style: none;
     scrollbar-width: none;
