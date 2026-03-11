@@ -29,6 +29,13 @@ class AuthController extends Controller
         private readonly AuthService $authService
     ) {}
 
+    /**
+     * Register
+     *
+     * Create a new user account and receive an auth token.
+     *
+     * @unauthenticated
+     */
     public function register(RegisterRequest $request): JsonResponse
     {
         $dto = new RegisterDTO(...$request->validated());
@@ -41,6 +48,13 @@ class AuthController extends Controller
         ], 'Registration successful. Please verify your email.');
     }
 
+    /**
+     * Login
+     *
+     * Authenticate a user and receive a Bearer token.
+     *
+     * @unauthenticated
+     */
     public function login(LoginRequest $request): JsonResponse
     {
         $dto = new LoginDTO(...$request->validated());
@@ -64,6 +78,13 @@ class AuthController extends Controller
         return $this->success($user);
     }
 
+    /**
+     * Send OTP
+     *
+     * Send a one-time password to the given phone number.
+     *
+     * @unauthenticated
+     */
     public function sendOtp(SendOtpRequest $request): JsonResponse
     {
         $this->authService->sendOtp($request->validated('phone'));
@@ -71,6 +92,13 @@ class AuthController extends Controller
         return $this->success(null, 'OTP sent successfully.');
     }
 
+    /**
+     * Verify OTP
+     *
+     * Verify the OTP sent to the phone number.
+     *
+     * @unauthenticated
+     */
     public function verifyOtp(VerifyOtpRequest $request): JsonResponse
     {
         $result = $this->authService->verifyOtp(
@@ -81,6 +109,13 @@ class AuthController extends Controller
         return $this->success($result, 'OTP verified successfully.');
     }
 
+    /**
+     * Forgot Password
+     *
+     * Send a password reset link to the given email.
+     *
+     * @unauthenticated
+     */
     public function forgotPassword(ForgotPasswordRequest $request): JsonResponse
     {
         $this->authService->forgotPassword($request->validated('email'));
@@ -88,6 +123,13 @@ class AuthController extends Controller
         return $this->success(null, 'Password reset link sent.');
     }
 
+    /**
+     * Reset Password
+     *
+     * Reset the user's password using the token from the reset email.
+     *
+     * @unauthenticated
+     */
     public function resetPassword(ResetPasswordRequest $request): JsonResponse
     {
         $this->authService->resetPassword($request->validated());

@@ -22,6 +22,7 @@ class ReviewController extends Controller
         private readonly ReviewService $reviewService
     ) {}
 
+    /**\n     * List Reviews\n     *\n     * Get all approved reviews for a product.\n     *\n     * @unauthenticated\n     */
     public function index(int $productId): JsonResponse
     {
         $reviews = $this->reviewService->listForProduct($productId);

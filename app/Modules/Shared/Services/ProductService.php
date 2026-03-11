@@ -4,6 +4,7 @@ namespace App\Modules\Shared\Services;
 
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Cache;
 
 class ProductService
 {
@@ -58,13 +59,15 @@ class ProductService
 
     public function featured(int $limit = 8): \Illuminate\Database\Eloquent\Collection
     {
-        return Product::active()
-            ->inStock()
-            ->featured()
-            ->with(['primaryImage', 'category'])
-            ->latest()
-            ->limit($limit)
-            ->get();
+        return Cache::remember("products:featured:{$limit}", 600, function () use ($limit) {
+            return Product::active()
+                ->inStock()
+                ->featured()
+                ->with(['primaryImage', 'category'])
+                ->latest()
+                ->limit($limit)
+                ->get();
+        });
     }
 
     public function relatedProducts(Product $product, int $limit = 4): \Illuminate\Database\Eloquent\Collection
@@ -77,5 +80,15 @@ class ProductService
             ->inRandomOrder()
             ->limit($limit)
             ->get();
+    }
+
+    public static function clearCache(): void
+    {
+        Cache::forget('products:featured:8');
+        Cache::forget('products:featured:4');
+        Cache::forget('homepage:featured');
+        Cache::forget('homepage:new_arrivals');
+        Cache::forget('homepage:top_rated');
+        Cache::forget('homepage:stats');
     }
 }

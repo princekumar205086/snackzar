@@ -6,6 +6,7 @@ use App\Models\Category;
 use App\Models\Product;
 use App\Models\Review;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
 use Inertia\Response;
 
@@ -13,48 +14,60 @@ class HomeController extends Controller
 {
     public function index(): Response
     {
-        $featuredProducts = Product::active()
-            ->inStock()
-            ->featured()
-            ->with(['primaryImage', 'category'])
-            ->latest()
-            ->limit(8)
-            ->get();
+        $featuredProducts = Cache::remember('homepage:featured', 300, function () {
+            return Product::active()
+                ->inStock()
+                ->featured()
+                ->with(['primaryImage', 'category'])
+                ->latest()
+                ->limit(8)
+                ->get();
+        });
 
-        $newArrivals = Product::active()
-            ->inStock()
-            ->with(['primaryImage', 'category'])
-            ->latest()
-            ->limit(8)
-            ->get();
+        $newArrivals = Cache::remember('homepage:new_arrivals', 300, function () {
+            return Product::active()
+                ->inStock()
+                ->with(['primaryImage', 'category'])
+                ->latest()
+                ->limit(8)
+                ->get();
+        });
 
-        $categories = Category::active()
-            ->root()
-            ->withCount(['products' => fn ($q) => $q->active()->inStock()])
-            ->orderBy('sort_order')
-            ->limit(6)
-            ->get();
+        $categories = Cache::remember('homepage:categories', 3600, function () {
+            return Category::active()
+                ->root()
+                ->withCount(['products' => fn ($q) => $q->active()->inStock()])
+                ->orderBy('sort_order')
+                ->limit(6)
+                ->get();
+        });
 
-        $topRated = Product::active()
-            ->inStock()
-            ->where('avg_rating', '>=', 4)
-            ->with(['primaryImage', 'category'])
-            ->orderByDesc('avg_rating')
-            ->limit(4)
-            ->get();
+        $topRated = Cache::remember('homepage:top_rated', 300, function () {
+            return Product::active()
+                ->inStock()
+                ->where('avg_rating', '>=', 4)
+                ->with(['primaryImage', 'category'])
+                ->orderByDesc('avg_rating')
+                ->limit(4)
+                ->get();
+        });
 
-        $recentReviews = Review::approved()
-            ->with(['user:id,name,avatar', 'product:id,name,slug'])
-            ->where('rating', '>=', 4)
-            ->latest()
-            ->limit(6)
-            ->get();
+        $recentReviews = Cache::remember('homepage:reviews', 300, function () {
+            return Review::approved()
+                ->with(['user:id,name,avatar', 'product:id,name,slug'])
+                ->where('rating', '>=', 4)
+                ->latest()
+                ->limit(6)
+                ->get();
+        });
 
-        $stats = [
-            'products' => Product::active()->count(),
-            'categories' => Category::active()->count(),
-            'happy_customers' => Review::approved()->distinct('user_id')->count('user_id'),
-        ];
+        $stats = Cache::remember('homepage:stats', 600, function () {
+            return [
+                'products' => Product::active()->count(),
+                'categories' => Category::active()->count(),
+                'happy_customers' => Review::approved()->distinct('user_id')->count('user_id'),
+            ];
+        });
 
         return Inertia::render('Home', [
             'featuredProducts' => $featuredProducts,

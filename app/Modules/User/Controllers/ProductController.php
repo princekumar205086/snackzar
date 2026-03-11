@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
  * @group Products
  *
  * APIs for browsing the product catalog (list with filters, detail, featured, related).
+ * @unauthenticated
  */
 class ProductController extends Controller
 {

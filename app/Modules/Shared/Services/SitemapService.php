@@ -5,10 +5,18 @@ namespace App\Modules\Shared\Services;
 use App\Models\BlogPost;
 use App\Models\Category;
 use App\Models\Product;
+use Illuminate\Support\Facades\Cache;
 
 class SitemapService
 {
     public function generate(): array
+    {
+        return Cache::remember('sitemap:urls', 3600, function () {
+            return $this->buildUrls();
+        });
+    }
+
+    protected function buildUrls(): array
     {
         $urls = [];
 

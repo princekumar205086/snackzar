@@ -1,0 +1,455 @@
+name: 'Delivery Dashboard'
+description: |-
+
+  APIs for delivery partner dashboard (profile, stats, earnings).
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/delivery/dashboard
+    metadata:
+      custom: []
+      groupName: 'Delivery Dashboard'
+      groupDescription: |-
+
+        APIs for delivery partner dashboard (profile, stats, earnings).
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/delivery/profile
+    metadata:
+      custom: []
+      groupName: 'Delivery Dashboard'
+      groupDescription: |-
+
+        APIs for delivery partner dashboard (profile, stats, earnings).
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/delivery/profile
+    metadata:
+      custom: []
+      groupName: 'Delivery Dashboard'
+      groupDescription: |-
+
+        APIs for delivery partner dashboard (profile, stats, earnings).
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      vehicle_type:
+        custom: []
+        name: vehicle_type
+        description: ''
+        required: true
+        example: bike
+        type: string
+        enumValues:
+          - bike
+          - scooter
+          - car
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      vehicle_number:
+        custom: []
+        name: vehicle_number
+        description: 'Must not be greater than 20 characters.'
+        required: false
+        example: bngzmiyvdljnikhw
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      license_number:
+        custom: []
+        name: license_number
+        description: 'Must not be greater than 20 characters.'
+        required: false
+        example: aykcmyuwpwlvqwrs
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      aadhar_number:
+        custom: []
+        name: aadhar_number
+        description: 'Must not be greater than 12 characters.'
+        required: false
+        example: itcp
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      bank_name:
+        custom: []
+        name: bank_name
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: s
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      bank_account_number:
+        custom: []
+        name: bank_account_number
+        description: 'Must not be greater than 20 characters.'
+        required: false
+        example: cqldzsnrwtujwvlx
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      bank_ifsc:
+        custom: []
+        name: bank_ifsc
+        description: 'Must not be greater than 15 characters.'
+        required: false
+        example: j
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      upi_id:
+        custom: []
+        name: upi_id
+        description: 'Must not be greater than 50 characters.'
+        required: false
+        example: k
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      vehicle_type: bike
+      vehicle_number: bngzmiyvdljnikhw
+      license_number: aykcmyuwpwlvqwrs
+      aadhar_number: itcp
+      bank_name: s
+      bank_account_number: cqldzsnrwtujwvlx
+      bank_ifsc: j
+      upi_id: k
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: api/v1/delivery/profile
+    metadata:
+      custom: []
+      groupName: 'Delivery Dashboard'
+      groupDescription: |-
+
+        APIs for delivery partner dashboard (profile, stats, earnings).
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      vehicle_type:
+        custom: []
+        name: vehicle_type
+        description: ''
+        required: false
+        example: bike
+        type: string
+        enumValues:
+          - bike
+          - scooter
+          - car
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      vehicle_number:
+        custom: []
+        name: vehicle_number
+        description: 'Must not be greater than 20 characters.'
+        required: false
+        example: bngzmiyvdljnikhw
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      license_number:
+        custom: []
+        name: license_number
+        description: 'Must not be greater than 20 characters.'
+        required: false
+        example: aykcmyuwpwlvqwrs
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      bank_name:
+        custom: []
+        name: bank_name
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: i
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      bank_account_number:
+        custom: []
+        name: bank_account_number
+        description: 'Must not be greater than 20 characters.'
+        required: false
+        example: tcpscqldzsnrwtuj
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      bank_ifsc:
+        custom: []
+        name: bank_ifsc
+        description: 'Must not be greater than 15 characters.'
+        required: false
+        example: w
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      upi_id:
+        custom: []
+        name: upi_id
+        description: 'Must not be greater than 50 characters.'
+        required: false
+        example: v
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      vehicle_type: bike
+      vehicle_number: bngzmiyvdljnikhw
+      license_number: aykcmyuwpwlvqwrs
+      bank_name: i
+      bank_account_number: tcpscqldzsnrwtuj
+      bank_ifsc: w
+      upi_id: v
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: api/v1/delivery/availability
+    metadata:
+      custom: []
+      groupName: 'Delivery Dashboard'
+      groupDescription: |-
+
+        APIs for delivery partner dashboard (profile, stats, earnings).
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PATCH
+    uri: api/v1/delivery/location
+    metadata:
+      custom: []
+      groupName: 'Delivery Dashboard'
+      groupDescription: |-
+
+        APIs for delivery partner dashboard (profile, stats, earnings).
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      latitude:
+        custom: []
+        name: latitude
+        description: 'Must be between -90 and 90.'
+        required: true
+        example: -89
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      longitude:
+        custom: []
+        name: longitude
+        description: 'Must be between -180 and 180.'
+        required: true
+        example: -179
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      latitude: -89
+      longitude: -179
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null

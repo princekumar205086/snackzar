@@ -11,6 +11,7 @@ use Illuminate\Http\JsonResponse;
  * @group Categories
  *
  * APIs for browsing product categories.
+ * @unauthenticated
  */
 class CategoryController extends Controller
 {

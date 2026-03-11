@@ -1,0 +1,458 @@
+name: 'Seller Dashboard'
+description: |-
+
+  APIs for the seller dashboard (profile, stats, payout history).
+endpoints:
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/seller/dashboard
+    metadata:
+      custom: []
+      groupName: 'Seller Dashboard'
+      groupDescription: |-
+
+        APIs for the seller dashboard (profile, stats, payout history).
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/seller/profile
+    metadata:
+      custom: []
+      groupName: 'Seller Dashboard'
+      groupDescription: |-
+
+        APIs for the seller dashboard (profile, stats, payout history).
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/seller/profile
+    metadata:
+      custom: []
+      groupName: 'Seller Dashboard'
+      groupDescription: |-
+
+        APIs for the seller dashboard (profile, stats, payout history).
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      business_name:
+        custom: []
+        name: business_name
+        description: 'Must not be greater than 255 characters.'
+        required: true
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      gst_number:
+        custom: []
+        name: gst_number
+        description: 'Must not be greater than 20 characters.'
+        required: false
+        example: ngzmiyvdljnikhwa
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pan_number:
+        custom: []
+        name: pan_number
+        description: 'Must not be greater than 15 characters.'
+        required: false
+        example: 'y'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      business_address:
+        custom: []
+        name: business_address
+        description: 'Must not be greater than 1000 characters.'
+        required: false
+        example: k
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      bank_name:
+        custom: []
+        name: bank_name
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: c
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      bank_account_number:
+        custom: []
+        name: bank_account_number
+        description: 'Must not be greater than 20 characters.'
+        required: false
+        example: myuwpwlvqwrsitcp
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      bank_ifsc:
+        custom: []
+        name: bank_ifsc
+        description: 'Must not be greater than 15 characters.'
+        required: false
+        example: s
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      upi_id:
+        custom: []
+        name: upi_id
+        description: 'Must not be greater than 50 characters.'
+        required: false
+        example: c
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      business_name: b
+      gst_number: ngzmiyvdljnikhwa
+      pan_number: 'y'
+      business_address: k
+      bank_name: c
+      bank_account_number: myuwpwlvqwrsitcp
+      bank_ifsc: s
+      upi_id: c
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - PUT
+    uri: api/v1/seller/profile
+    metadata:
+      custom: []
+      groupName: 'Seller Dashboard'
+      groupDescription: |-
+
+        APIs for the seller dashboard (profile, stats, payout history).
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      business_name:
+        custom: []
+        name: business_name
+        description: 'Must not be greater than 255 characters.'
+        required: false
+        example: b
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+      gst_number:
+        custom: []
+        name: gst_number
+        description: 'Must not be greater than 20 characters.'
+        required: false
+        example: ngzmiyvdljnikhwa
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      pan_number:
+        custom: []
+        name: pan_number
+        description: 'Must not be greater than 15 characters.'
+        required: false
+        example: 'y'
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      business_address:
+        custom: []
+        name: business_address
+        description: 'Must not be greater than 1000 characters.'
+        required: false
+        example: k
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      bank_name:
+        custom: []
+        name: bank_name
+        description: 'Must not be greater than 100 characters.'
+        required: false
+        example: c
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      bank_account_number:
+        custom: []
+        name: bank_account_number
+        description: 'Must not be greater than 20 characters.'
+        required: false
+        example: myuwpwlvqwrsitcp
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      bank_ifsc:
+        custom: []
+        name: bank_ifsc
+        description: 'Must not be greater than 15 characters.'
+        required: false
+        example: s
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+      upi_id:
+        custom: []
+        name: upi_id
+        description: 'Must not be greater than 50 characters.'
+        required: false
+        example: c
+        type: string
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: true
+        deprecated: false
+    cleanBodyParameters:
+      business_name: b
+      gst_number: ngzmiyvdljnikhwa
+      pan_number: 'y'
+      business_address: k
+      bank_name: c
+      bank_account_number: myuwpwlvqwrsitcp
+      bank_ifsc: s
+      upi_id: c
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - GET
+    uri: api/v1/seller/payouts
+    metadata:
+      custom: []
+      groupName: 'Seller Dashboard'
+      groupDescription: |-
+
+        APIs for the seller dashboard (profile, stats, payout history).
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters: []
+    cleanBodyParameters: []
+    fileParameters: []
+    responses:
+      -
+        custom: []
+        status: 401
+        content: '{"message":"Unauthenticated."}'
+        headers:
+          cache-control: 'no-cache, private'
+          content-type: application/json
+          access-control-allow-origin: '*'
+        description: null
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
+  -
+    custom: []
+    httpMethods:
+      - POST
+    uri: api/v1/seller/payouts
+    metadata:
+      custom: []
+      groupName: 'Seller Dashboard'
+      groupDescription: |-
+
+        APIs for the seller dashboard (profile, stats, payout history).
+      subgroup: ''
+      subgroupDescription: ''
+      title: ''
+      description: ''
+      authenticated: true
+      deprecated: false
+    headers:
+      Authorization: 'Bearer {YOUR_AUTH_KEY}'
+      Content-Type: application/json
+      Accept: application/json
+    urlParameters: []
+    cleanUrlParameters: []
+    queryParameters: []
+    cleanQueryParameters: []
+    bodyParameters:
+      amount:
+        custom: []
+        name: amount
+        description: 'Must be at least 100.'
+        required: true
+        example: 95
+        type: number
+        enumValues: []
+        exampleWasSpecified: false
+        nullable: false
+        deprecated: false
+    cleanBodyParameters:
+      amount: 95
+    fileParameters: []
+    responses: []
+    responseFields: []
+    auth:
+      - headers
+      - Authorization
+      - 'Bearer 6g43cv8PD1aE5beadkZfhV6'
+    controller: null
+    method: null
+    route: null
