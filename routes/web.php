@@ -1,11 +1,14 @@
 <?php
 
+use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome');
-})->name('home');
+Route::get('/', [HomeController::class, 'index'])->name('home');
+Route::get('/products', [HomeController::class, 'products'])->name('products.index');
+Route::get('/products/{slug}', [HomeController::class, 'productShow'])->name('products.show');
+Route::get('/about', [HomeController::class, 'about'])->name('about');
+Route::get('/contact', [HomeController::class, 'contact'])->name('contact');
 
 // Email verification route (opens in browser from email link)
 Route::get('/email/verify/{id}/{hash}', function () {
