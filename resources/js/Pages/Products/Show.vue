@@ -67,12 +67,10 @@ const addToCart = async () => {
     }
 
     try {
-        await window.axios.post('/api/v1/user/cart/items', {
+        await window.axios.post('/api/v1/user/cart', {
             product_id: props.product.id,
             product_variant_id: selectedVariant.value?.id,
             quantity: quantity.value,
-        }, {
-            headers: { 'Authorization': `Bearer ${page.props.auth?.token}` },
         });
         alert('Added to cart!');
     } catch (e) {
@@ -89,8 +87,6 @@ const addToWishlist = async () => {
     try {
         await window.axios.post('/api/v1/user/wishlist', {
             product_id: props.product.id,
-        }, {
-            headers: { 'Authorization': `Bearer ${page.props.auth?.token}` },
         });
         alert('Added to wishlist!');
     } catch (e) {

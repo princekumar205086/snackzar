@@ -15,6 +15,7 @@ use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
 use Inertia\Inertia;
 use Inertia\Response;
+use Laravel\Socialite\Facades\Socialite;
 
 class WebAuthController extends Controller
 {
@@ -126,25 +127,40 @@ class WebAuthController extends Controller
     public function redirectToGoogle()
     {
         return Inertia::location(
-            'https://accounts.google.com/o/oauth2/v2/auth?' . http_build_query([
-                'client_id' => config('services.google.client_id'),
-                'redirect_uri' => config('services.google.redirect'),
-                'response_type' => 'code',
-                'scope' => 'openid email profile',
-                'state' => csrf_token(),
-            ])
+            Socialite::driver('google')->redirect()->getTargetUrl()
         );
     }
 
     public function handleGoogleCallback(Request $request)
     {
         try {
-            $result = $this->authService->handleGoogleCallback($request->input('code'));
+            $googleUser = Socialite::driver('google')->stateless()->user();
+            $result = $this->authService->handleGoogleCallback([
+                'id'     => $googleUser->getId(),
+                'email'  => $googleUser->getEmail(),
+                'name'   => $googleUser->getName(),
+                'avatar' => $googleUser->getAvatar(),
+            ]);
             Auth::login($result['user'], true);
             $request->session()->regenerate();
-            return redirect('/');
+
+            $user = $result['user'];
+            if ($user->hasRole('admin')) return redirect('/admin/dashboard');
+            if ($user->hasRole('seller')) return redirect('/seller/dashboard');
+            if ($user->hasRole('delivery_partner')) return redirect('/delivery/dashboard');
+            return redirect('/dashboard');
         } catch (\Exception $e) {
             return redirect('/login')->withErrors(['email' => 'Google authentication failed. Please try again.']);
         }
+    }
+
+    public function showOtpLogin(): Response
+    {
+        return Inertia::render('Auth/OtpLogin');
+    }
+
+    public function showVerifyEmail(): Response
+    {
+        return Inertia::render('Auth/VerifyEmail');
     }
 }
