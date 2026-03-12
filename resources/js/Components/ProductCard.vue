@@ -53,6 +53,7 @@ const handleAdd = async (e) => {
         window.location.href = '/login';
         return;
     }
+    if (inCart.value) return; // already in cart — use the +/− controls
     loading.value = true;
     try {
         await addToCart(props.product.id, null, 1);
@@ -96,29 +97,32 @@ const handleWishlist = async (e) => {
 </script>
 
 <template>
-    <Link :href="`/products/${product.slug}`" class="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-amber-200 hover:shadow-lg transition-all duration-300 flex flex-col">
+    <Link :href="`/products/${product.slug}`" class="group bg-white rounded-2xl overflow-hidden border border-gray-100 hover:border-amber-200 hover:shadow-xl transition-all duration-300 flex flex-col">
         <!-- Image -->
-        <div class="relative overflow-hidden bg-gray-50 aspect-square">
+        <div class="relative overflow-hidden bg-gray-100 aspect-square">
             <img
                 :src="imageUrl"
                 :alt="product.name"
-                class="w-full h-full object-contain p-3 group-hover:scale-105 transition-transform duration-500"
+                class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                 loading="lazy"
             />
-            <!-- Discount Badge -->
-            <div v-if="discountPercent > 0" class="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-md">
-                {{ discountPercent }}% OFF
+            <!-- Subtle bottom gradient -->
+            <div class="absolute inset-x-0 bottom-0 h-1/4 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+            <!-- Badges top-left (stacked) -->
+            <div class="absolute top-2 left-2 flex flex-col gap-1">
+                <span v-if="discountPercent > 0" class="bg-green-500 text-white text-xs font-bold px-2 py-0.5 rounded-lg shadow-sm leading-tight">
+                    {{ discountPercent }}% OFF
+                </span>
+                <span v-if="product.is_featured" class="bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-lg shadow-sm leading-tight">
+                    Featured
+                </span>
             </div>
-            <!-- Featured Badge -->
-            <div v-if="product.is_featured" class="absolute top-2 right-2 bg-amber-500 text-white text-xs font-bold px-2 py-0.5 rounded-md">
-                Featured
-            </div>
-            <!-- Wishlist heart -->
+            <!-- Wishlist heart - top right -->
             <button
                 @click.prevent="handleWishlist($event)"
                 :disabled="wishlistLoading"
-                class="absolute bottom-2 right-2 w-7 h-7 rounded-full flex items-center justify-center backdrop-blur-sm transition-all"
-                :class="wishlisted ? 'bg-red-50 text-red-500 shadow' : 'bg-white/80 text-gray-300 hover:text-red-400'"
+                class="absolute top-2 right-2 w-8 h-8 rounded-full flex items-center justify-center backdrop-blur-sm shadow-sm transition-all"
+                :class="wishlisted ? 'bg-white text-red-500' : 'bg-white/80 text-gray-300 hover:text-red-400'"
                 :title="wishlisted ? 'Remove from wishlist' : 'Add to wishlist'"
             >
                 <svg class="w-4 h-4" :fill="wishlisted ? 'currentColor' : 'none'" stroke="currentColor" viewBox="0 0 24 24">
@@ -129,10 +133,8 @@ const handleWishlist = async (e) => {
 
         <!-- Content -->
         <div class="p-3 flex flex-col flex-1">
-            <p v-if="product.category" class="text-xs text-gray-400 mb-0.5">{{ product.category.name }}</p>
-            <h3 class="text-sm font-semibold text-gray-900 line-clamp-2 mb-1.5 flex-1 leading-snug">
-                {{ product.name }}
-            </h3>
+            <p v-if="product.category" class="text-xs text-amber-600 font-medium mb-0.5">{{ product.category.name }}</p>
+            <h3 class="text-sm font-semibold text-gray-900 line-clamp-2 mb-1.5 flex-1 leading-snug">{{ product.name }}</h3>
 
             <!-- Rating -->
             <div v-if="product.avg_rating > 0" class="flex items-center gap-1 mb-2">
@@ -144,7 +146,7 @@ const handleWishlist = async (e) => {
                 <span class="text-xs text-gray-400">({{ product.total_reviews }})</span>
             </div>
 
-            <!-- Price + Add/Qty Button -->
+            <!-- Price + Add/Qty -->
             <div class="flex items-center justify-between mt-auto gap-2">
                 <div>
                     <span class="text-base font-bold text-gray-900">{{ formatPrice(product.price) }}</span>
@@ -153,27 +155,17 @@ const handleWishlist = async (e) => {
 
                 <!-- Quantity controls when in cart -->
                 <div v-if="inCart && cartItem" class="flex items-center gap-1" @click.prevent>
-                    <button
-                        @click.prevent="handleQtyChange($event, -1)"
-                        :disabled="loading"
-                        class="w-7 h-7 rounded-full border-2 border-amber-500 text-amber-600 hover:bg-amber-50 disabled:opacity-50 flex items-center justify-center font-bold text-base transition-colors"
-                    >−</button>
+                    <button @click.prevent="handleQtyChange($event, -1)" :disabled="loading"
+                        class="w-7 h-7 rounded-full border-2 border-amber-500 text-amber-600 hover:bg-amber-50 disabled:opacity-50 flex items-center justify-center font-bold text-base transition-colors">−</button>
                     <span class="w-6 text-center text-sm font-bold text-gray-900">{{ cartItem.quantity }}</span>
-                    <button
-                        @click.prevent="handleQtyChange($event, 1)"
-                        :disabled="loading || cartItem.quantity >= productStock"
-                        class="w-7 h-7 rounded-full bg-amber-600 hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center font-bold text-base transition-colors"
-                    >+</button>
+                    <button @click.prevent="handleQtyChange($event, 1)" :disabled="loading || cartItem.quantity >= productStock"
+                        class="w-7 h-7 rounded-full bg-amber-600 hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed text-white flex items-center justify-center font-bold text-base transition-colors">+</button>
                 </div>
 
                 <!-- Add button when not in cart -->
-                <button
-                    v-else
-                    @click.prevent="handleAdd($event)"
-                    :disabled="loading"
-                    class="w-9 h-9 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white rounded-full flex items-center justify-center shadow transition-all duration-200 shrink-0"
-                    :title="user ? 'Add to cart' : 'Login to add'"
-                >
+                <button v-else @click.prevent="handleAdd($event)" :disabled="loading"
+                    class="w-9 h-9 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white rounded-full flex items-center justify-center shadow-md transition-all duration-200 shrink-0"
+                    :title="user ? 'Add to cart' : 'Login to add'">
                     <svg v-if="loading" class="w-4 h-4 animate-spin" fill="none" viewBox="0 0 24 24">
                         <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                         <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>

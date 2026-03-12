@@ -52,14 +52,16 @@ onMounted(loadCart);
                     <div v-for="item in items" :key="item.id" class="bg-white rounded-2xl border border-gray-100 p-3 sm:p-4 hover:border-amber-100 transition-colors">
                         <div class="flex items-center gap-3">
                             <!-- Product image -->
-                            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gray-50 border border-gray-100 flex items-center justify-center overflow-hidden shrink-0">
+                            <div class="w-14 h-14 sm:w-16 sm:h-16 rounded-xl bg-gray-100 border border-gray-100 overflow-hidden shrink-0">
                                 <img
                                     v-if="item.product?.primary_image?.url || item.product?.primary_image?.image_url"
                                     :src="item.product.primary_image?.url || item.product.primary_image?.image_url"
                                     :alt="item.product?.name"
-                                    class="w-full h-full object-contain p-1"
+                                    class="w-full h-full object-cover"
                                 />
-                                <span v-else class="text-2xl">📦</span>
+                                <div v-else class="w-full h-full flex items-center justify-center">
+                                    <svg class="w-6 h-6 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                                </div>
                             </div>
 
                             <!-- Info -->
@@ -68,6 +70,9 @@ onMounted(loadCart);
                                     class="font-semibold text-gray-900 text-sm leading-tight line-clamp-2 hover:text-amber-600 transition-colors">
                                     {{ item.product?.name }}
                                 </a>
+                                <p v-if="item.variant?.name" class="text-xs text-gray-500 mt-0.5 font-medium">
+                                    <span class="bg-gray-100 text-gray-600 px-1.5 py-0.5 rounded-md">{{ item.variant.name }}</span>
+                                </p>
                                 <p class="text-xs text-amber-600 font-semibold mt-0.5">{{ currency(item.unit_price) }}</p>
                             </div>
 

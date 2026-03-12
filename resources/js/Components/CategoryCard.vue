@@ -33,12 +33,12 @@ const getBg = () => {
         class="group flex flex-col items-center gap-2 cursor-pointer shrink-0 w-28 lg:w-auto"
     >
         <!-- Image Box -->
-        <div :class="getBg()" class="w-full aspect-square rounded-2xl overflow-hidden flex items-center justify-center border border-gray-100 group-hover:border-amber-300 group-hover:shadow-md transition-all duration-300">
+        <div class="w-full aspect-square rounded-2xl overflow-hidden border border-gray-100 group-hover:border-amber-300 group-hover:shadow-md transition-all duration-300 relative" :class="!category.image ? getBg() + ' flex items-center justify-center' : ''">
             <img
                 v-if="category.image"
                 :src="category.image"
                 :alt="category.name"
-                class="w-4/5 h-4/5 object-contain group-hover:scale-110 transition-transform duration-500"
+                class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                 loading="lazy"
             />
             <div v-else class="flex flex-col items-center gap-1">
