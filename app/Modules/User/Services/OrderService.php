@@ -4,6 +4,7 @@ namespace App\Modules\User\Services;
 
 use App\Models\Address;
 use App\Models\Cart;
+use App\Models\Coupon;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
@@ -51,47 +52,66 @@ class OrderService
             }
         }
 
-        return DB::transaction(function () use ($user, $cart, $address, $data) {
-            $subtotal = $cart->items->sum(fn ($item) => $item->unit_price * $item->quantity);
-            $shippingCharge = $subtotal >= 500 ? 0 : 50; // Free shipping above ₹500
-            $tax = round($subtotal * 0.05, 2); // 5% GST
-            $total = $subtotal + $shippingCharge + $tax;
+        // Resolve coupon if provided
+        $coupon   = null;
+        $discount = 0;
+        if (!empty($data['coupon_code'])) {
+            $coupon = Coupon::where('code', strtoupper(trim($data['coupon_code'])))->first();
+            if (!$coupon) {
+                throw ValidationException::withMessages(['coupon_code' => ['Invalid coupon code.']]);
+            }
+        }
+
+        return DB::transaction(function () use ($user, $cart, $address, $data, $coupon) {
+            $subtotal      = $cart->items->sum(fn ($item) => $item->unit_price * $item->quantity);
+            $shippingCharge = $subtotal >= 500 ? 0 : 50;
+            $tax           = round($subtotal * 0.05, 2);
+
+            // Apply coupon discount
+            $discount = 0;
+            if ($coupon && $coupon->isValidForUser($user, $subtotal)) {
+                $discount = $coupon->calculateDiscount($subtotal);
+            }
+
+            $total = max(0, $subtotal + $shippingCharge + $tax - $discount);
 
             $shippingAddress = [
-                'name' => $address->name,
-                'phone' => $address->phone,
+                'name'         => $address->name,
+                'phone'        => $address->phone,
                 'address_line_1' => $address->address_line_1,
                 'address_line_2' => $address->address_line_2,
-                'city' => $address->city,
-                'state' => $address->state,
-                'pincode' => $address->pincode,
-                'landmark' => $address->landmark,
+                'city'         => $address->city,
+                'state'        => $address->state,
+                'pincode'      => $address->pincode,
+                'landmark'     => $address->landmark,
             ];
 
             $order = Order::create([
-                'order_number' => Order::generateOrderNumber(),
-                'user_id' => $user->id,
-                'address_id' => $address->id,
-                'status' => 'pending',
-                'subtotal' => $subtotal,
+                'order_number'    => Order::generateOrderNumber(),
+                'user_id'         => $user->id,
+                'address_id'      => $address->id,
+                'status'          => 'pending',
+                'subtotal'        => $subtotal,
                 'shipping_charge' => $shippingCharge,
-                'tax' => $tax,
-                'total' => $total,
-                'notes' => $data['notes'] ?? null,
-                'shipping_address' => $shippingAddress,
+                'tax'             => $tax,
+                'discount'        => $discount,
+                'coupon_code'     => $coupon?->code,
+                'total'           => $total,
+                'notes'           => $data['notes'] ?? null,
+                'shipping_address'=> $shippingAddress,
             ]);
 
             foreach ($cart->items as $item) {
                 $order->items()->create([
-                    'product_id' => $item->product_id,
+                    'product_id'         => $item->product_id,
                     'product_variant_id' => $item->product_variant_id,
-                    'seller_id' => $item->product->seller_id,
-                    'product_name' => $item->product->name,
-                    'variant_name' => $item->variant?->name,
-                    'sku' => $item->variant?->sku ?? $item->product->sku,
-                    'quantity' => $item->quantity,
-                    'unit_price' => $item->unit_price,
-                    'total' => $item->unit_price * $item->quantity,
+                    'seller_id'          => $item->product->seller_id,
+                    'product_name'       => $item->product->name,
+                    'variant_name'       => $item->variant?->name,
+                    'sku'                => $item->variant?->sku ?? $item->product->sku,
+                    'quantity'           => $item->quantity,
+                    'unit_price'         => $item->unit_price,
+                    'total'              => $item->unit_price * $item->quantity,
                 ]);
 
                 // Deduct stock
@@ -104,13 +124,24 @@ class OrderService
                 $item->product->increment('total_sold', $item->quantity);
             }
 
+            // Increment coupon usage
+            if ($coupon && $discount > 0) {
+                $coupon->increment('used_count');
+                // Track per-user usage in pivot (for bulk/enterprise coupons)
+                if (in_array($coupon->scope, ['bulk', 'enterprise'])) {
+                    $coupon->assignedUsers()->updateExistingPivot($user->id, [
+                        'used_count' => DB::raw('used_count + 1'),
+                    ]);
+                }
+            }
+
             // Create payment record
             $paymentMethod = $data['payment_method'] ?? 'cod';
             Payment::create([
                 'order_id' => $order->id,
-                'method' => $paymentMethod,
-                'status' => $paymentMethod === 'cod' ? 'pending' : 'pending',
-                'amount' => $total,
+                'method'   => $paymentMethod,
+                'status'   => 'pending',
+                'amount'   => $total,
             ]);
 
             // Clear cart

@@ -62,4 +62,9 @@ class AdminWebController extends Controller
     {
         return Inertia::render('Admin/Blog/Edit', ['id' => $id]);
     }
+
+    public function coupons(): Response
+    {
+        return Inertia::render('Admin/Coupons/Index');
+    }
 }

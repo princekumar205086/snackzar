@@ -41,6 +41,7 @@ class OrderController extends Controller
             'address_id' => ['required', 'exists:addresses,id'],
             'payment_method' => ['sometimes', 'in:cod,razorpay,upi'],
             'notes' => ['nullable', 'string', 'max:500'],
+            'coupon_code' => ['nullable', 'string'],
         ]);
 
         $order = $this->orderService->placeOrder($request->user(), $data);

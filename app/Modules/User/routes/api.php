@@ -4,6 +4,7 @@ use App\Modules\User\Controllers\AddressController;
 use App\Modules\User\Controllers\AuthController;
 use App\Modules\User\Controllers\CartController;
 use App\Modules\User\Controllers\CategoryController;
+use App\Modules\User\Controllers\CouponController;
 use App\Modules\User\Controllers\MediaController;
 use App\Modules\User\Controllers\NotificationController;
 use App\Modules\User\Controllers\OrderController;
@@ -74,6 +75,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
     Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
     Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+
+    // Coupon validation (public — or auth, either is fine)
+    Route::post('/coupon/validate', [CouponController::class, 'validate'])->name('coupon.validate');
+    Route::get('/coupon/my-coupons', [CouponController::class, 'myCoupons'])->name('coupon.mine');
 
     // Orders
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');

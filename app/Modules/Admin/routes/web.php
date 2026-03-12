@@ -35,3 +35,6 @@ Route::prefix('blog')->name('blog.')->group(function () {
     Route::get('/create', [AdminWebController::class, 'blogCreate'])->name('create');
     Route::get('/{id}/edit', [AdminWebController::class, 'blogEdit'])->name('edit');
 });
+
+// Coupons
+Route::get('/coupons', [AdminWebController::class, 'coupons'])->name('coupons.index');

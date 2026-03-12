@@ -14,6 +14,7 @@ const navItems = [
     { label: 'Sellers',           href: '/admin/sellers',            icon: 'briefcase' },
     { label: 'Delivery Partners', href: '/admin/delivery-partners',  icon: 'truck' },
     { label: 'Categories',        href: '/admin/categories',         icon: 'tag' },
+    { label: 'Coupons',           href: '/admin/coupons',            icon: 'coupon' },
     { label: 'Blog',              href: '/admin/blog',               icon: 'file-text' },
 ];
 
@@ -62,6 +63,7 @@ function logout() {
                         <path v-else-if="item.icon === 'truck'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h11a2 2 0 012 2v3m3 7a2 2 0 100 4 2 2 0 000-4zm-8 0a2 2 0 100 4 2 2 0 000-4z M16 5h2l3 5v5h-2"/>
                         <path v-else-if="item.icon === 'tag'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z M7 7h.01"/>
                         <path v-else-if="item.icon === 'file-text'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z M14 2v6h6 M16 13H8 M16 17H8 M10 9H8"/>
+                        <path v-else-if="item.icon === 'coupon'" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/>
                     </svg>
                     {{ item.label }}
                 </Link>

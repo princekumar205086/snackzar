@@ -2,6 +2,7 @@
 
 use App\Modules\Admin\Controllers\AdminBlogController;
 use App\Modules\Admin\Controllers\AdminCategoryController;
+use App\Modules\Admin\Controllers\AdminCouponController;
 use App\Modules\Admin\Controllers\AdminDashboardController;
 use App\Modules\Admin\Controllers\AdminOrderController;
 use App\Modules\Admin\Controllers\AdminSellerController;
@@ -43,3 +44,20 @@ Route::post('/blog', [AdminBlogController::class, 'store'])->name('blog.store');
 Route::get('/blog/{post}', [AdminBlogController::class, 'show'])->name('blog.show');
 Route::put('/blog/{post}', [AdminBlogController::class, 'update'])->name('blog.update');
 Route::delete('/blog/{post}', [AdminBlogController::class, 'destroy'])->name('blog.destroy');
+
+// Coupons
+Route::prefix('coupons')->name('coupons.')->group(function () {
+    Route::get('/',                   [AdminCouponController::class, 'index'])->name('index');
+    Route::post('/',                  [AdminCouponController::class, 'store'])->name('store');
+    Route::get('/stats',              [AdminCouponController::class, 'stats'])->name('stats');
+    Route::post('/bulk-generate',     [AdminCouponController::class, 'bulkGenerate'])->name('bulk-generate');
+    Route::get('/{id}',               [AdminCouponController::class, 'show'])->name('show');
+    Route::put('/{id}',               [AdminCouponController::class, 'update'])->name('update');
+    Route::delete('/{id}',            [AdminCouponController::class, 'destroy'])->name('destroy');
+    Route::patch('/{id}/toggle',      [AdminCouponController::class, 'toggleActive'])->name('toggle');
+    Route::post('/{id}/assign',       [AdminCouponController::class, 'assignToUser'])->name('assign');
+    Route::post('/{id}/revoke',       [AdminCouponController::class, 'revokeFromUser'])->name('revoke');
+    Route::post('/{id}/bulk-assign',  [AdminCouponController::class, 'bulkAssign'])->name('bulk-assign');
+    Route::post('/{id}/bulk-filter',  [AdminCouponController::class, 'bulkAssignByFilter'])->name('bulk-filter');
+    Route::get('/{id}/users',         [AdminCouponController::class, 'assignedUsers'])->name('users');
+});
