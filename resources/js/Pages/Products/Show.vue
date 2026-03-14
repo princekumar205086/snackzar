@@ -27,6 +27,7 @@ const quantity = ref(1);
 const activeTab = ref('description');
 const addingToCart = ref(false);
 const wishlistLoading = ref(false);
+const loginRedirectUrl = () => `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
 
 // Stock for the currently selected option
 const currentStock = computed(() => selectedVariant.value?.stock ?? props.product.stock ?? 0);
@@ -59,7 +60,7 @@ const formatPrice = (price) => '₹' + Number(price ?? 0).toLocaleString('en-IN'
 
 async function handleAddToCart() {
     if (!user.value) {
-        window.location.href = '/login';
+        window.location.href = loginRedirectUrl();
         return;
     }
     const safeQty = Math.min(quantity.value, currentStock.value || 1);
@@ -86,7 +87,7 @@ async function handleCartQty(newQty) {
 
 async function addToWishlist() {
     if (!user.value) {
-        window.location.href = '/login';
+        window.location.href = loginRedirectUrl();
         return;
     }
     wishlistLoading.value = true;
@@ -111,7 +112,7 @@ function shareProduct() {
 }
 
 async function handleBuyNow() {
-    if (!user.value) { window.location.href = '/login'; return; }
+    if (!user.value) { window.location.href = loginRedirectUrl(); return; }
     addingToCart.value = true;
     try {
         await cartAdd(props.product.id, selectedVariant.value?.id ?? null, quantity.value);

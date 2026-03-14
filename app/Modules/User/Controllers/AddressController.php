@@ -9,6 +9,7 @@ use App\Modules\User\Requests\AddressRequest;
 use App\Modules\User\Services\AddressService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 /**
  * @group Addresses
@@ -80,5 +81,39 @@ class AddressController extends Controller
         $address = $this->addressService->setDefault($address);
 
         return $this->success($address, 'Default address updated.');
+    }
+
+    public function lookupPincode(string $pincode): JsonResponse
+    {
+        if (!preg_match('/^\d{6}$/', $pincode)) {
+            return $this->error('Invalid pincode format.', 422);
+        }
+
+        $response = Http::timeout(8)->get("https://api.postalpincode.in/pincode/{$pincode}");
+        if (! $response->ok()) {
+            return $this->error('Unable to fetch pincode details right now.', 422);
+        }
+
+        $body = $response->json();
+        $result = is_array($body) ? ($body[0] ?? null) : null;
+        $postOffices = $result['PostOffice'] ?? [];
+
+        if (! is_array($postOffices) || count($postOffices) === 0) {
+            return $this->error('No address details found for this pincode.', 404);
+        }
+
+        $primary = $postOffices[0];
+
+        return $this->success([
+            'pincode' => $pincode,
+            'country' => $primary['Country'] ?? 'India',
+            'state' => $primary['State'] ?? null,
+            'district' => $primary['District'] ?? null,
+            'city' => $primary['District'] ?? null,
+            'post_offices' => array_values(array_filter(array_map(
+                fn ($office) => $office['Name'] ?? null,
+                $postOffices
+            ))),
+        ]);
     }
 }

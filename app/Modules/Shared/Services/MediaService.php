@@ -5,6 +5,7 @@ namespace App\Modules\Shared\Services;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
+use Throwable;
 
 class MediaService
 {
@@ -14,7 +15,17 @@ class MediaService
     public function upload(UploadedFile $file, string $folder = 'uploads'): array
     {
         if ($this->isImageKitConfigured()) {
-            return $this->uploadToImageKit($file, $folder);
+            try {
+                return $this->uploadToImageKit($file, $folder);
+            } catch (Throwable $e) {
+                // In local/testing environments, keep media flows reliable even if external SSL/network fails.
+                if (app()->environment(['local', 'testing'])) {
+                    report($e);
+                    return $this->uploadToLocal($file, $folder);
+                }
+
+                throw $e;
+            }
         }
 
         return $this->uploadToLocal($file, $folder);
@@ -36,6 +47,10 @@ class MediaService
 
     private function isImageKitConfigured(): bool
     {
+        if (app()->environment('testing')) {
+            return false;
+        }
+
         return !empty(config('services.imagekit.public_key'))
             && !empty(config('services.imagekit.private_key'))
             && !empty(config('services.imagekit.url_endpoint'));

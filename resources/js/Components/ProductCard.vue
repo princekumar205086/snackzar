@@ -27,6 +27,8 @@ const inCart = computed(() => cartProductIds.value.has(props.product.id));
 
 const loading = ref(false);
 
+const loginRedirectUrl = () => `/login?redirect=${encodeURIComponent(window.location.pathname + window.location.search)}`;
+
 const imageUrl = computed(() => {
     return props.product.primary_image?.url || props.product.primary_image?.image_url || '/images/placeholder-product.png';
 });
@@ -50,7 +52,7 @@ const formatPrice = (price) => {
 const handleAdd = async (e) => {
     e.preventDefault();
     if (!user.value) {
-        window.location.href = '/login';
+        window.location.href = loginRedirectUrl();
         return;
     }
     if (inCart.value) return; // already in cart — use the +/− controls
@@ -82,7 +84,7 @@ const handleQtyChange = async (e, delta) => {
 
 const handleWishlist = async (e) => {
     e.preventDefault();
-    if (!user.value) { window.location.href = '/login'; return; }
+    if (!user.value) { window.location.href = loginRedirectUrl(); return; }
     wishlistLoading.value = true;
     try {
         const res = await toggleWishlist(props.product.id);

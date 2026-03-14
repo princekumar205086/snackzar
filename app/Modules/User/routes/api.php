@@ -58,6 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
         'destroy' => 'addresses.destroy',
     ]);
     Route::patch('/addresses/{address}/default', [AddressController::class, 'setDefault'])->name('addresses.default');
+    Route::get('/pincode/{pincode}', [AddressController::class, 'lookupPincode'])->name('addresses.pincode.lookup');
 
     // Cart
     Route::get('/cart', [CartController::class, 'index'])->name('cart.index');

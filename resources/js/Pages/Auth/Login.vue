@@ -1,6 +1,11 @@
 <script setup>
 import { Head, useForm, Link, usePage } from '@inertiajs/vue3';
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+
+const props = defineProps({
+    googleClientId: { type: String, default: '' },
+    redirectTo: { type: String, default: '' },
+});
 
 const page = usePage();
 const statusMessage = computed(() => page.props.flash?.status || page.props.status || null);
@@ -11,6 +16,66 @@ const form = useForm({
     email: '',
     password: '',
     remember: false,
+    redirect: props.redirectTo || '',
+});
+
+const googleAuthUrl = computed(() => {
+    if (!form.redirect) {
+        return '/auth/google';
+    }
+
+    return `/auth/google?redirect=${encodeURIComponent(form.redirect)}`;
+});
+
+onMounted(() => {
+    if (!props.googleClientId) {
+        return;
+    }
+
+    const setupGoogleOneTap = () => {
+        if (!window.google?.accounts?.id) {
+            return;
+        }
+
+        window.google.accounts.id.initialize({
+            client_id: props.googleClientId,
+            callback: async (response) => {
+                try {
+                    const res = await window.axios.post('/auth/google/one-tap', {
+                        credential: response.credential,
+                        redirect: form.redirect || undefined,
+                    });
+                    window.location.href = res.data?.redirect || '/dashboard';
+                } catch (error) {
+                    console.error('Google One Tap failed', error);
+                }
+            },
+            auto_select: false,
+            cancel_on_tap_outside: true,
+            context: 'signin',
+        });
+
+        window.google.accounts.id.prompt();
+    };
+
+    if (window.google?.accounts?.id) {
+        setupGoogleOneTap();
+        return;
+    }
+
+    const existing = document.getElementById('google-identity-services');
+    if (existing) {
+        existing.addEventListener('load', setupGoogleOneTap, { once: true });
+        return;
+    }
+
+    const script = document.createElement('script');
+    script.id = 'google-identity-services';
+    script.src = 'https://accounts.google.com/gsi/client';
+    script.async = true;
+    script.defer = true;
+    script.onload = setupGoogleOneTap;
+    document.head.appendChild(script);
 });
 
 const submit = () => {
@@ -77,7 +142,7 @@ const submit = () => {
 
                 <!-- Google Sign In -->
                 <a
-                    href="/auth/google"
+                    :href="googleAuthUrl"
                     class="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-all mb-6"
                 >
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
@@ -116,6 +181,7 @@ const submit = () => {
                                 class="block w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-amber-500 focus:ring-amber-500 text-gray-900 placeholder-gray-400"
                                 placeholder="you@example.com"
                             />
+                            <input v-model="form.redirect" type="hidden" />
                         </div>
                         <p v-if="form.errors.email" class="mt-1.5 text-sm text-red-600">{{ form.errors.email }}</p>
                     </div>

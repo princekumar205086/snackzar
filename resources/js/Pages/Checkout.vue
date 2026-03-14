@@ -24,9 +24,24 @@ const couponError      = ref('');
 const myCoupons        = ref([]);
 const showMyCoupons    = ref(false);
 const showAddressModal = ref(false);
+const pincodeLookupLoading = ref(false);
+const pincodeLookupError = ref('');
+const pincodePostOffices = ref([]);
 
 // ── New address form ──────────────────────────────────────────────────────────
-const newAddr = ref({ full_name: '', phone: '', address_line1: '', city: '', state: '', pincode: '' });
+const emptyAddressForm = () => ({
+    name: '',
+    phone: '',
+    address_line_1: '',
+    address_line_2: '',
+    pincode: '',
+    country: 'India',
+    state: '',
+    district: '',
+    city: '',
+    is_default: false,
+});
+const newAddr = ref(emptyAddressForm());
 const savingAddr = ref(false);
 const addrErrors = ref({});
 
@@ -57,6 +72,9 @@ const total       = computed(() => Math.max(0, subtotal.value + deliveryFee.valu
 function currency(v) {
     return '₹' + Number(v ?? 0).toLocaleString('en-IN', { minimumFractionDigits: 2 });
 }
+
+const addressName = (addr) => addr?.full_name ?? addr?.name ?? '';
+const addressLine1 = (addr) => addr?.address_line1 ?? addr?.address_line_1 ?? '';
 
 // ── Coupon ────────────────────────────────────────────────────────────────────
 async function applyCoupon(code = null) {
@@ -91,18 +109,62 @@ function removeCoupon() {
 
 async function saveAddress() {
     addrErrors.value = {};
+    pincodeLookupError.value = '';
     savingAddr.value = true;
     try {
-        const res = await window.axios.post('/api/v1/user/addresses', newAddr.value);
+        const payload = {
+            name: newAddr.value.name,
+            phone: newAddr.value.phone,
+            address_line_1: newAddr.value.address_line_1,
+            address_line_2: newAddr.value.address_line_2 || null,
+            city: newAddr.value.city || newAddr.value.district,
+            state: newAddr.value.state,
+            pincode: newAddr.value.pincode,
+            is_default: !!newAddr.value.is_default,
+        };
+
+        const res = await window.axios.post('/api/v1/user/addresses', payload);
         const addr = res.data.data;
         addresses.value.push(addr);
         selectedAddressId.value = addr.id;
         showAddressModal.value  = false;
-        newAddr.value = { full_name: '', phone: '', address_line1: '', city: '', state: '', pincode: '' };
+        newAddr.value = emptyAddressForm();
+        pincodePostOffices.value = [];
     } catch (e) {
         addrErrors.value = e.response?.data?.errors ?? {};
     } finally {
         savingAddr.value = false;
+    }
+}
+
+async function lookupIndianPincode() {
+    const pin = (newAddr.value.pincode || '').replace(/\D/g, '');
+    newAddr.value.pincode = pin;
+
+    if (pin.length !== 6) {
+        pincodeLookupError.value = pin.length ? 'Enter a valid 6-digit Indian pincode.' : '';
+        pincodePostOffices.value = [];
+        return;
+    }
+
+    pincodeLookupLoading.value = true;
+    pincodeLookupError.value = '';
+    pincodePostOffices.value = [];
+
+    try {
+        const res = await window.axios.get(`/api/v1/user/pincode/${pin}`);
+        const data = res.data?.data ?? {};
+
+        newAddr.value.country = data.country || 'India';
+        newAddr.value.state = data.state || '';
+        newAddr.value.district = data.district || '';
+        newAddr.value.city = data.city || data.district || '';
+        pincodePostOffices.value = Array.isArray(data.post_offices) ? data.post_offices : [];
+    } catch (e) {
+        pincodeLookupError.value = e.response?.data?.message || 'Could not detect location for this pincode.';
+        pincodePostOffices.value = [];
+    } finally {
+        pincodeLookupLoading.value = false;
     }
 }
 
@@ -131,11 +193,8 @@ async function placeOrder() {
 
         const orderRes = await window.axios.post('/api/v1/user/orders', payload);
         const orderId  = orderRes.data.data?.id;
-        const orderTotal = parseFloat(orderRes.data.data?.total ?? 0);
-
         const rpRes = await window.axios.post('/payment/create-order', {
             order_id: orderId,
-            amount:   Math.round(orderTotal * 100),
         });
         const { razorpay_order_id, amount, currency: rpCurrency } = rpRes.data.data ?? rpRes.data;
 
@@ -226,11 +285,11 @@ onMounted(() => {
                                 <input type="radio" :value="addr.id" v-model="selectedAddressId" class="mt-1 accent-amber-500 shrink-0" />
                                 <div class="flex-1 min-w-0">
                                     <div class="flex flex-wrap items-center gap-2 mb-0.5">
-                                        <span class="font-semibold text-gray-900 text-sm">{{ addr.full_name }}</span>
+                                        <span class="font-semibold text-gray-900 text-sm">{{ addressName(addr) }}</span>
                                         <span v-if="addr.label" class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full capitalize">{{ addr.label }}</span>
                                         <span v-if="addr.is_default" class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Default</span>
                                     </div>
-                                    <p class="text-sm text-gray-600 break-words">{{ addr.address_line1 }}, {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}</p>
+                                    <p class="text-sm text-gray-600 break-words">{{ addressLine1(addr) }}, {{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}</p>
                                     <p class="text-xs text-gray-400 mt-0.5">📱 {{ addr.phone }}</p>
                                 </div>
                                 <div v-if="selectedAddressId === addr.id" class="shrink-0 text-amber-500">
@@ -442,9 +501,9 @@ onMounted(() => {
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
                                     <label class="text-xs text-gray-500 font-medium">Full Name *</label>
-                                    <input v-model="newAddr.full_name" type="text" placeholder="Full name"
+                                    <input v-model="newAddr.name" type="text" placeholder="Full name"
                                         class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
-                                    <p v-if="addrErrors.full_name" class="text-xs text-red-500 mt-0.5">{{ addrErrors.full_name?.[0] }}</p>
+                                    <p v-if="addrErrors.name" class="text-xs text-red-500 mt-0.5">{{ addrErrors.name?.[0] }}</p>
                                 </div>
                                 <div>
                                     <label class="text-xs text-gray-500 font-medium">Phone *</label>
@@ -455,15 +514,30 @@ onMounted(() => {
                             </div>
                             <div>
                                 <label class="text-xs text-gray-500 font-medium">Address Line *</label>
-                                <input v-model="newAddr.address_line1" type="text" placeholder="House no., Street, Area"
+                                <input v-model="newAddr.address_line_1" type="text" placeholder="House no., Street, Area"
                                     class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
-                                <p v-if="addrErrors.address_line1" class="text-xs text-red-500 mt-0.5">{{ addrErrors.address_line1?.[0] }}</p>
+                                <p v-if="addrErrors.address_line_1" class="text-xs text-red-500 mt-0.5">{{ addrErrors.address_line_1?.[0] }}</p>
                             </div>
-                            <div class="grid grid-cols-3 gap-3">
+                            <div>
+                                <label class="text-xs text-gray-500 font-medium">Address Line 2</label>
+                                <input v-model="newAddr.address_line_2" type="text" placeholder="Apartment, Suite, Landmark (optional)"
+                                    class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                            </div>
+                            <div class="grid grid-cols-2 gap-3">
                                 <div>
-                                    <label class="text-xs text-gray-500 font-medium">City *</label>
-                                    <input v-model="newAddr.city" type="text" placeholder="City"
+                                    <label class="text-xs text-gray-500 font-medium">Pincode *</label>
+                                    <input v-model="newAddr.pincode" type="text" placeholder="6-digit"
+                                        maxlength="6"
+                                        inputmode="numeric"
+                                        @blur="lookupIndianPincode"
                                         class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                                    <p v-if="pincodeLookupLoading" class="text-xs text-gray-500 mt-0.5">Detecting location...</p>
+                                    <p v-if="pincodeLookupError" class="text-xs text-red-500 mt-0.5">{{ pincodeLookupError }}</p>
+                                </div>
+                                <div>
+                                    <label class="text-xs text-gray-500 font-medium">Country *</label>
+                                    <input v-model="newAddr.country" type="text" readonly
+                                        class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-600 focus:outline-none" />
                                 </div>
                                 <div>
                                     <label class="text-xs text-gray-500 font-medium">State *</label>
@@ -471,9 +545,18 @@ onMounted(() => {
                                         class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
                                 </div>
                                 <div>
-                                    <label class="text-xs text-gray-500 font-medium">Pincode *</label>
-                                    <input v-model="newAddr.pincode" type="text" placeholder="6-digit"
+                                    <label class="text-xs text-gray-500 font-medium">District *</label>
+                                    <input v-model="newAddr.district" type="text" placeholder="District"
                                         class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="text-xs text-gray-500 font-medium">City *</label>
+                                    <input v-model="newAddr.city" type="text" placeholder="City"
+                                        class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                                </div>
+                                <div class="col-span-2" v-if="pincodePostOffices.length">
+                                    <label class="text-xs text-gray-500 font-medium">Nearest Post Offices</label>
+                                    <p class="mt-1 text-xs text-gray-600">{{ pincodePostOffices.join(', ') }}</p>
                                 </div>
                             </div>
                         </div>

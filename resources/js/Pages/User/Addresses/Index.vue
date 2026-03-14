@@ -10,18 +10,26 @@ const editing = ref(null);
 const saving = ref(false);
 const deleting = ref(null);
 const errors = ref({});
+const pincodeLookupLoading = ref(false);
+const pincodeLookupError = ref('');
+const pincodePostOffices = ref([]);
 
 const emptyForm = () => ({
-    full_name: '',
+    name: '',
     phone: '',
-    address_line1: '',
-    address_line2: '',
+    address_line_1: '',
+    address_line_2: '',
+    pincode: '',
+    country: 'India',
+    district: '',
     city: '',
     state: '',
-    pincode: '',
     is_default: false,
 });
 const form = ref(emptyForm());
+
+const addressName = (addr) => addr?.full_name ?? addr?.name ?? '';
+const addressLine1 = (addr) => addr?.address_line1 ?? addr?.address_line_1 ?? '';
 
 async function load() {
     loading.value = true;
@@ -39,23 +47,69 @@ function openAdd() {
     editing.value = null;
     form.value = emptyForm();
     errors.value = {};
+    pincodeLookupError.value = '';
+    pincodePostOffices.value = [];
     showModal.value = true;
 }
 function openEdit(addr) {
     editing.value = addr.id;
-    form.value = { ...addr };
+    form.value = {
+        ...emptyForm(),
+        ...addr,
+        name: addr.name ?? addr.full_name ?? '',
+        address_line_1: addr.address_line_1 ?? addr.address_line1 ?? '',
+        address_line_2: addr.address_line_2 ?? addr.address_line2 ?? '',
+        district: addr.city ?? '',
+        country: 'India',
+    };
     errors.value = {};
+    pincodeLookupError.value = '';
+    pincodePostOffices.value = [];
     showModal.value = true;
+}
+
+async function lookupIndianPincode() {
+    const pin = (form.value.pincode || '').replace(/\D/g, '');
+    form.value.pincode = pin;
+
+    if (pin.length !== 6) {
+        pincodeLookupError.value = pin.length ? 'Enter a valid 6-digit Indian pincode.' : '';
+        pincodePostOffices.value = [];
+        return;
+    }
+
+    pincodeLookupLoading.value = true;
+    pincodeLookupError.value = '';
+    pincodePostOffices.value = [];
+
+    try {
+        const res = await window.axios.get(`/api/v1/user/pincode/${pin}`);
+        const data = res.data?.data ?? {};
+        form.value.country = data.country || 'India';
+        form.value.state = data.state || '';
+        form.value.district = data.district || '';
+        form.value.city = data.city || data.district || '';
+        pincodePostOffices.value = Array.isArray(data.post_offices) ? data.post_offices : [];
+    } catch (e) {
+        pincodeLookupError.value = e.response?.data?.message || 'Could not detect location for this pincode.';
+    } finally {
+        pincodeLookupLoading.value = false;
+    }
 }
 
 async function submit() {
     saving.value = true;
     errors.value = {};
+    const payload = {
+        ...form.value,
+        city: form.value.city || form.value.district,
+    };
+
     try {
         if (editing.value) {
-            await window.axios.put(`/api/v1/user/addresses/${editing.value}`, form.value);
+            await window.axios.put(`/api/v1/user/addresses/${editing.value}`, payload);
         } else {
-            await window.axios.post('/api/v1/user/addresses', form.value);
+            await window.axios.post('/api/v1/user/addresses', payload);
         }
         showModal.value = false;
         await load();
@@ -114,11 +168,11 @@ onMounted(load);
                     <div class="flex items-start justify-between gap-4">
                         <div class="flex-1">
                             <div class="flex items-center gap-2 mb-1">
-                                <p class="font-semibold text-gray-900">{{ addr.full_name }}</p>
+                                <p class="font-semibold text-gray-900">{{ addressName(addr) }}</p>
                                 <span v-if="addr.is_default" class="bg-amber-100 text-amber-700 text-xs px-2 py-0.5 rounded-full font-medium">Default</span>
                             </div>
-                            <p class="text-sm text-gray-600">{{ addr.address_line1 }}</p>
-                            <p v-if="addr.address_line2" class="text-sm text-gray-600">{{ addr.address_line2 }}</p>
+                            <p class="text-sm text-gray-600">{{ addressLine1(addr) }}</p>
+                            <p v-if="addr.address_line2 || addr.address_line_2" class="text-sm text-gray-600">{{ addr.address_line2 ?? addr.address_line_2 }}</p>
                             <p class="text-sm text-gray-600">{{ addr.city }}, {{ addr.state }} - {{ addr.pincode }}</p>
                             <p class="text-sm text-gray-500 mt-1">📱 {{ addr.phone }}</p>
                         </div>
@@ -151,9 +205,9 @@ onMounted(load);
                         <div class="grid sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
-                                <input v-model="form.full_name" type="text" required
+                                <input v-model="form.name" type="text" required
                                     class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400" />
-                                <p v-if="errors.full_name" class="text-red-500 text-xs mt-1">{{ errors.full_name[0] }}</p>
+                                <p v-if="errors.name" class="text-red-500 text-xs mt-1">{{ errors.name[0] }}</p>
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Phone *</label>
@@ -164,20 +218,27 @@ onMounted(load);
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Address Line 1 *</label>
-                            <input v-model="form.address_line1" type="text" required
+                            <input v-model="form.address_line_1" type="text" required
                                 class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400" />
-                            <p v-if="errors.address_line1" class="text-red-500 text-xs mt-1">{{ errors.address_line1[0] }}</p>
+                            <p v-if="errors.address_line_1" class="text-red-500 text-xs mt-1">{{ errors.address_line_1[0] }}</p>
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700 mb-1">Address Line 2</label>
-                            <input v-model="form.address_line2" type="text"
+                            <input v-model="form.address_line_2" type="text"
                                 class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400" />
                         </div>
-                        <div class="grid grid-cols-3 gap-3">
+                        <div class="grid sm:grid-cols-2 gap-3">
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">City *</label>
-                                <input v-model="form.city" type="text" required
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Pincode *</label>
+                                <input v-model="form.pincode" type="text" required maxlength="6" pattern="\d{6}" @blur="lookupIndianPincode"
                                     class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400" />
+                                <p v-if="pincodeLookupLoading" class="text-xs text-gray-500 mt-1">Detecting location...</p>
+                                <p v-if="pincodeLookupError" class="text-xs text-red-500 mt-1">{{ pincodeLookupError }}</p>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Country *</label>
+                                <input v-model="form.country" type="text" readonly
+                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-600 focus:outline-none" />
                             </div>
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">State *</label>
@@ -185,9 +246,18 @@ onMounted(load);
                                     class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400" />
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Pincode *</label>
-                                <input v-model="form.pincode" type="text" required maxlength="6" pattern="\d{6}"
+                                <label class="block text-sm font-medium text-gray-700 mb-1">District *</label>
+                                <input v-model="form.district" type="text" required
                                     class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400" />
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                                <input v-model="form.city" type="text" required
+                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400" />
+                            </div>
+                            <div class="sm:col-span-2" v-if="pincodePostOffices.length">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Nearest Post Offices</label>
+                                <p class="text-xs text-gray-600">{{ pincodePostOffices.join(', ') }}</p>
                             </div>
                         </div>
                         <label class="flex items-center gap-2 cursor-pointer">

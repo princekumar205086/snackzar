@@ -53,10 +53,10 @@ class UserWebController extends Controller
         return Inertia::render('Cart/Index');
     }
 
-    public function checkout(): Response
+    public function checkout()
     {
         if (!Auth::check()) {
-            return redirect('/login');
+            return redirect()->guest('/login');
         }
         return Inertia::render('Checkout', [
             'razorpayKey' => config('services.razorpay.key'),
@@ -67,18 +67,24 @@ class UserWebController extends Controller
     {
         $request->validate([
             'order_id' => 'required|integer',
-            'amount'   => 'required|integer|min:1', // in paise
         ]);
 
         try {
+            $user = $request->user();
+            $order = Order::where('id', $request->order_id)
+                ->where('user_id', $user->id)
+                ->firstOrFail();
+
             $api = new RazorpayApi(
                 config('services.razorpay.key'),
                 config('services.razorpay.secret')
             );
 
+            $amountInPaise = (int) round((float) $order->total * 100);
+
             $razorpayOrder = $api->order->create([
                 'receipt'  => 'order_' . $request->order_id,
-                'amount'   => $request->amount,
+                'amount'   => $amountInPaise,
                 'currency' => 'INR',
                 'notes'    => ['order_id' => $request->order_id],
             ]);
@@ -115,31 +121,40 @@ class UserWebController extends Controller
         );
 
         if (!hash_equals($generated, $request->razorpay_signature)) {
-            return back()->withErrors(['payment' => 'Payment verification failed.']);
+            return response()->json(['message' => 'Payment verification failed.'], 422);
         }
 
-        // Store payment record — call the existing API payment endpoint internally
         try {
             $user = $request->user();
             $order = Order::where('id', $request->order_id)
                 ->where('user_id', $user->id)
                 ->firstOrFail();
 
-            Payment::create([
-                'order_id'           => $order->id,
-                'user_id'            => $user->id,
-                'gateway'            => 'razorpay',
-                'gateway_order_id'   => $request->razorpay_order_id,
-                'gateway_payment_id' => $request->razorpay_payment_id,
-                'amount'             => $order->total_amount,
-                'status'             => 'completed',
+            Payment::updateOrCreate([
+                'order_id' => $order->id,
+            ], [
+                'payment_id' => $request->razorpay_payment_id,
+                'method' => 'razorpay',
+                'status' => 'paid',
+                'amount' => $order->total,
+                'currency' => 'INR',
+                'paid_at' => now(),
+                'gateway_response' => [
+                    'gateway' => 'razorpay',
+                    'order_id' => $request->razorpay_order_id,
+                    'payment_id' => $request->razorpay_payment_id,
+                    'signature' => $request->razorpay_signature,
+                ],
             ]);
 
             $order->update(['status' => 'confirmed']);
 
-            return redirect('/orders/' . $order->id . '?payment=success');
+            return response()->json([
+                'status' => 'success',
+                'redirect' => '/orders/' . $order->id . '?payment=success',
+            ]);
         } catch (\Exception $e) {
-            return back()->withErrors(['payment' => 'Payment recorded but order update failed.']);
+            return response()->json(['message' => 'Payment recorded but order update failed.'], 422);
         }
     }
 }

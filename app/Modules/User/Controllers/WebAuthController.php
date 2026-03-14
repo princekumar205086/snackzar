@@ -10,6 +10,7 @@ use App\Modules\User\Requests\RegisterRequest;
 use App\Modules\User\Services\AuthService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
 use Illuminate\Auth\Events\PasswordReset;
@@ -23,9 +24,18 @@ class WebAuthController extends Controller
         private readonly AuthService $authService
     ) {}
 
-    public function showLogin(): Response
+    public function showLogin(Request $request): Response
     {
-        return Inertia::render('Auth/Login');
+        $redirect = $this->sanitizeRedirect($request->query('redirect'));
+
+        if ($redirect) {
+            $request->session()->put('auth.redirect_to', $redirect);
+        }
+
+        return Inertia::render('Auth/Login', [
+            'googleClientId' => config('services.google.client_id'),
+            'redirectTo' => $redirect,
+        ]);
     }
 
     public function login(LoginRequest $request)
@@ -36,6 +46,11 @@ class WebAuthController extends Controller
         Auth::login($result['user'], $dto->remember);
 
         $request->session()->regenerate();
+
+        $redirectTo = $this->resolveRedirectTo($request);
+        if ($redirectTo) {
+            return redirect()->to($redirectTo);
+        }
 
         $user = $result['user'];
         if ($user->hasRole('admin')) {
@@ -126,6 +141,11 @@ class WebAuthController extends Controller
 
     public function redirectToGoogle()
     {
+        $redirectTo = $this->sanitizeRedirect(request()->query('redirect'));
+        if ($redirectTo) {
+            session()->put('auth.redirect_to', $redirectTo);
+        }
+
         return Inertia::location(
             Socialite::driver('google')->redirect()->getTargetUrl()
         );
@@ -144,14 +164,69 @@ class WebAuthController extends Controller
             Auth::login($result['user'], true);
             $request->session()->regenerate();
 
+            $redirectTo = $this->resolveRedirectTo($request);
+            if ($redirectTo) {
+                return redirect()->to($redirectTo);
+            }
+
             $user = $result['user'];
-            if ($user->hasRole('admin')) return redirect('/admin/dashboard');
-            if ($user->hasRole('seller')) return redirect('/seller/dashboard');
-            if ($user->hasRole('delivery_partner')) return redirect('/delivery/dashboard');
-            return redirect('/dashboard');
+            if ($user->hasRole('admin')) return redirect()->intended('/admin/dashboard');
+            if ($user->hasRole('seller')) return redirect()->intended('/seller/dashboard');
+            if ($user->hasRole('delivery_partner')) return redirect()->intended('/delivery/dashboard');
+            return redirect()->intended('/dashboard');
         } catch (\Exception $e) {
             return redirect('/login')->withErrors(['email' => 'Google authentication failed. Please try again.']);
         }
+    }
+
+    public function handleGoogleOneTap(Request $request)
+    {
+        $request->validate([
+            'credential' => ['required', 'string'],
+            'redirect' => ['nullable', 'string'],
+        ]);
+
+        $redirectTo = $this->sanitizeRedirect($request->input('redirect'));
+        if ($redirectTo) {
+            $request->session()->put('auth.redirect_to', $redirectTo);
+        }
+
+        $response = Http::timeout(8)->get('https://oauth2.googleapis.com/tokeninfo', [
+            'id_token' => $request->string('credential')->toString(),
+        ]);
+
+        if (! $response->ok()) {
+            return response()->json(['message' => 'Google token verification failed.'], 422);
+        }
+
+        $tokenData = $response->json();
+        $clientId = config('services.google.client_id');
+
+        if (($tokenData['aud'] ?? null) !== $clientId) {
+            return response()->json(['message' => 'Invalid Google token audience.'], 422);
+        }
+
+        if (($tokenData['email_verified'] ?? 'false') !== 'true') {
+            return response()->json(['message' => 'Google email is not verified.'], 422);
+        }
+
+        if (empty($tokenData['sub']) || empty($tokenData['email'])) {
+            return response()->json(['message' => 'Google token payload is incomplete.'], 422);
+        }
+
+        $result = $this->authService->handleGoogleCallback([
+            'id' => $tokenData['sub'] ?? null,
+            'email' => $tokenData['email'] ?? null,
+            'name' => $tokenData['name'] ?? ($tokenData['email'] ?? 'Google User'),
+            'avatar' => $tokenData['picture'] ?? null,
+        ]);
+
+        Auth::login($result['user'], true);
+        $request->session()->regenerate();
+
+        return response()->json([
+            'redirect' => $this->resolveRedirectTo($request) ?? '/dashboard',
+        ]);
     }
 
     public function showOtpLogin(): Response
@@ -162,5 +237,34 @@ class WebAuthController extends Controller
     public function showVerifyEmail(): Response
     {
         return Inertia::render('Auth/VerifyEmail');
+    }
+
+    private function resolveRedirectTo(Request $request): ?string
+    {
+        $fromRequest = $this->sanitizeRedirect($request->input('redirect'));
+        if ($fromRequest) {
+            return $fromRequest;
+        }
+
+        $fromSession = $this->sanitizeRedirect($request->session()->pull('auth.redirect_to'));
+        if ($fromSession) {
+            return $fromSession;
+        }
+
+        return null;
+    }
+
+    private function sanitizeRedirect(?string $redirect): ?string
+    {
+        if (! $redirect) {
+            return null;
+        }
+
+        $redirect = trim($redirect);
+        if ($redirect === '' || ! str_starts_with($redirect, '/') || str_starts_with($redirect, '//')) {
+            return null;
+        }
+
+        return $redirect;
     }
 }

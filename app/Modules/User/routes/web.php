@@ -17,6 +17,7 @@ Route::middleware('guest')->group(function () {
 
     Route::get('/auth/google', [WebAuthController::class, 'redirectToGoogle'])->name('auth.google');
     Route::get('/auth/google/callback', [WebAuthController::class, 'handleGoogleCallback'])->name('auth.google.callback');
+    Route::post('/auth/google/one-tap', [WebAuthController::class, 'handleGoogleOneTap'])->name('auth.google.one_tap');
 
     Route::get('/login/otp', [WebAuthController::class, 'showOtpLogin'])->name('login.otp');
 });

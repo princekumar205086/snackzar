@@ -3,6 +3,7 @@
 namespace App\Modules\Admin\Services;
 
 use App\Models\Order;
+use App\Notifications\OrderStatusNotification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
 
@@ -36,6 +37,7 @@ class AdminOrderService
     public function updateStatus(int $orderId, string $status): Order
     {
         $order = Order::findOrFail($orderId);
+        $oldStatus = $order->status;
 
         $validTransitions = [
             'pending' => ['confirmed', 'cancelled'],
@@ -63,6 +65,8 @@ class AdminOrderService
             ['status' => $status],
             $timestamps[$status] ?? []
         ));
+
+        $order->user?->notify(new OrderStatusNotification($order, $oldStatus));
 
         return $order->fresh(['user', 'payment']);
     }

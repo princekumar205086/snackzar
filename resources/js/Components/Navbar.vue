@@ -6,6 +6,7 @@ import { useCart } from '@/composables/useCart';
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
 const { cartCount, cartTotal } = useCart();
+const loginUrl = computed(() => `/login?redirect=${encodeURIComponent(page.url || '/cart')}`);
 
 const mobileMenuOpen = ref(false);
 const searchQuery = ref('');
@@ -204,7 +205,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
                         </template>
 
                         <template v-else>
-                            <Link href="/login" class="hidden lg:flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 hover:text-amber-700 rounded-xl hover:bg-amber-50 transition-colors">
+                            <Link :href="loginUrl" class="hidden lg:flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-gray-600 hover:text-amber-700 rounded-xl hover:bg-amber-50 transition-colors">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
                                 </svg>
@@ -269,7 +270,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
                             <Link href="/logout" method="post" as="button" class="flex items-center w-full px-3 py-2.5 rounded-xl text-sm font-medium text-red-600 hover:bg-red-50" @click="mobileMenuOpen=false">Logout</Link>
                         </template>
                         <template v-else>
-                            <Link href="/login" class="block text-center px-3 py-2.5 rounded-xl text-sm font-medium border border-gray-200 text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen=false">Login</Link>
+                            <Link :href="loginUrl" class="block text-center px-3 py-2.5 rounded-xl text-sm font-medium border border-gray-200 text-gray-700 hover:bg-gray-50" @click="mobileMenuOpen=false">Login</Link>
                             <Link href="/register" class="block text-center px-3 py-2.5 rounded-xl text-sm font-semibold text-white bg-amber-600 hover:bg-amber-700" @click="mobileMenuOpen=false">Get Started</Link>
                         </template>
                     </div>

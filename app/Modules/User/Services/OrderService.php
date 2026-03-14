@@ -9,6 +9,7 @@ use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\User;
+use App\Notifications\OrderPlacedNotification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -146,6 +147,10 @@ class OrderService
 
             // Clear cart
             $cart->items()->delete();
+
+            DB::afterCommit(function () use ($user, $order) {
+                $user->notify(new OrderPlacedNotification($order));
+            });
 
             return $order->load(['items', 'payment']);
         });
