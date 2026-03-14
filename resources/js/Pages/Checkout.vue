@@ -187,7 +187,7 @@ async function placeOrder() {
         if (paymentMethod.value === 'cod') {
             const res = await window.axios.post('/api/v1/user/orders', payload);
             const orderId = res.data.data?.id ?? res.data.id;
-            router.visit(`/orders/${orderId}?success=1`);
+            router.visit(`/orders/${orderId}?success=1&payment=cod`);
             return;
         }
 
@@ -212,7 +212,7 @@ async function placeOrder() {
                     razorpay_signature:  response.razorpay_signature,
                     order_id:            orderId,
                 });
-                router.visit(`/orders/${orderId}?success=1`);
+                router.visit(`/orders/${orderId}?success=1&payment=success`);
             },
             prefill: {},
             theme:  { color: '#f59e0b' },
@@ -223,7 +223,16 @@ async function placeOrder() {
         rzp.open();
     } catch (e) {
         placingOrder.value = false;
-        errors.value.checkout = e.response?.data?.message ?? 'Failed to place order. Please try again.';
+        const apiMessage = e.response?.data?.message;
+        const cartErrors = e.response?.data?.errors?.cart;
+
+        if ((Array.isArray(cartErrors) && cartErrors.length) || apiMessage === 'Your cart is empty.') {
+            await loadCart();
+            errors.value.checkout = 'Your cart was already converted into an order. Please refresh or open your orders to continue payment.';
+            return;
+        }
+
+        errors.value.checkout = apiMessage ?? 'Failed to place order. Please try again.';
     }
 }
 

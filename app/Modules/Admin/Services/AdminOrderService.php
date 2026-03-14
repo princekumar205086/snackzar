@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Notifications\OrderStatusNotification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class AdminOrderService
 {
@@ -66,7 +67,11 @@ class AdminOrderService
             $timestamps[$status] ?? []
         ));
 
-        $order->user?->notify(new OrderStatusNotification($order, $oldStatus));
+        try {
+            $order->user?->notify(new OrderStatusNotification($order, $oldStatus));
+        } catch (Throwable $e) {
+            report($e);
+        }
 
         return $order->fresh(['user', 'payment']);
     }

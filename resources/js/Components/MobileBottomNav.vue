@@ -1,10 +1,18 @@
 <script setup>
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
+import { useCart } from '@/composables/useCart';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
 const currentUrl = computed(() => page.url);
+const { cartCount, loadCart } = useCart();
+
+onMounted(() => {
+    if (user.value) {
+        loadCart();
+    }
+});
 </script>
 
 <template>
@@ -29,9 +37,14 @@ const currentUrl = computed(() => page.url);
             <!-- Cart / Login -->
             <template v-if="user">
                 <Link href="/cart" class="flex flex-col items-center justify-center gap-0.5 flex-1 py-1 text-gray-500">
-                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
-                    </svg>
+                    <span class="relative inline-flex">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 100 4 2 2 0 000-4z" />
+                        </svg>
+                        <span v-if="cartCount > 0" class="absolute -right-2 -top-1.5 min-w-[16px] rounded-full bg-red-500 px-1 py-0.5 text-center text-[9px] font-bold leading-none text-white">
+                            {{ cartCount > 99 ? '99+' : cartCount }}
+                        </span>
+                    </span>
                     <span class="text-[10px] font-medium">Cart</span>
                 </Link>
             </template>

@@ -7,6 +7,21 @@ const props = defineProps({ id: [String, Number] });
 const order = ref(null);
 const loading = ref(true);
 const cancelling = ref(false);
+const showCelebration = ref(false);
+const confettiPieces = ref([]);
+
+function buildConfetti() {
+    const colors = ['#f59e0b', '#22c55e', '#ef4444', '#3b82f6', '#a855f7', '#14b8a6'];
+    confettiPieces.value = Array.from({ length: 80 }, (_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        delay: Math.random() * 0.8,
+        duration: 2.4 + Math.random() * 1.8,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        rotate: -160 + Math.random() * 320,
+        size: 6 + Math.random() * 8,
+    }));
+}
 
 async function load() {
     try {
@@ -46,11 +61,39 @@ function statusColor(s) {
 const cancellable = ['pending', 'confirmed'];
 
 onMounted(load);
+
+onMounted(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('success') === '1' || params.get('payment') === 'success') {
+        buildConfetti();
+        showCelebration.value = true;
+        setTimeout(() => {
+            showCelebration.value = false;
+        }, 3200);
+    }
+});
 </script>
 
 <template>
     <Head title="Order Detail" />
     <UserLayout>
+        <div v-if="showCelebration" class="pointer-events-none fixed inset-0 z-[80] overflow-hidden">
+            <span
+                v-for="piece in confettiPieces"
+                :key="piece.id"
+                class="absolute top-[-10%] confetti-piece"
+                :style="{
+                    left: piece.left + '%',
+                    width: piece.size + 'px',
+                    height: Math.max(4, piece.size * 0.45) + 'px',
+                    backgroundColor: piece.color,
+                    animationDelay: piece.delay + 's',
+                    animationDuration: piece.duration + 's',
+                    transform: 'rotate(' + piece.rotate + 'deg)'
+                }"
+            />
+        </div>
+
         <div>
             <div class="flex items-center gap-3 mb-6">
                 <a href="/orders" class="text-gray-500 hover:text-gray-700 text-sm">← My Orders</a>
@@ -129,3 +172,24 @@ onMounted(load);
         </div>
     </UserLayout>
 </template>
+
+<style scoped>
+.confetti-piece {
+    opacity: 0.95;
+    border-radius: 2px;
+    animation-name: confetti-fall;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+}
+
+@keyframes confetti-fall {
+    0% {
+        transform: translate3d(0, 0, 0) rotate(0deg);
+        opacity: 0.95;
+    }
+    100% {
+        transform: translate3d(0, 115vh, 0) rotate(540deg);
+        opacity: 0;
+    }
+}
+</style>

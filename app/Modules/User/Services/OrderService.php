@@ -13,6 +13,7 @@ use App\Notifications\OrderPlacedNotification;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Throwable;
 
 class OrderService
 {
@@ -149,7 +150,11 @@ class OrderService
             $cart->items()->delete();
 
             DB::afterCommit(function () use ($user, $order) {
-                $user->notify(new OrderPlacedNotification($order));
+                try {
+                    $user->notify(new OrderPlacedNotification($order));
+                } catch (Throwable $e) {
+                    report($e);
+                }
             });
 
             return $order->load(['items', 'payment']);
