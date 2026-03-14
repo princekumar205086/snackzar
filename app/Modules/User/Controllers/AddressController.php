@@ -9,6 +9,7 @@ use App\Modules\User\Requests\AddressRequest;
 use App\Modules\User\Services\AddressService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Client\ConnectionException;
 use Illuminate\Support\Facades\Http;
 
 /**
@@ -89,9 +90,32 @@ class AddressController extends Controller
             return $this->error('Invalid pincode format.', 422);
         }
 
-        $response = Http::timeout(8)->get("https://api.postalpincode.in/pincode/{$pincode}");
+        try {
+            $response = Http::timeout(10)
+                ->retry(2, 250)
+                ->get("https://api.postalpincode.in/pincode/{$pincode}");
+        } catch (ConnectionException $e) {
+            return $this->success([
+                'pincode' => $pincode,
+                'country' => 'India',
+                'state' => null,
+                'district' => null,
+                'city' => null,
+                'post_offices' => [],
+                'lookup_fallback' => true,
+            ], 'Pincode lookup service is temporarily unavailable. Please enter city, district, and state manually.');
+        }
+
         if (! $response->ok()) {
-            return $this->error('Unable to fetch pincode details right now.', 422);
+            return $this->success([
+                'pincode' => $pincode,
+                'country' => 'India',
+                'state' => null,
+                'district' => null,
+                'city' => null,
+                'post_offices' => [],
+                'lookup_fallback' => true,
+            ], 'Pincode lookup service is temporarily unavailable. Please enter city, district, and state manually.');
         }
 
         $body = $response->json();

@@ -195,13 +195,13 @@ onMounted(load);
 
         <!-- Modal -->
         <Teleport to="body">
-            <div v-if="showModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/40">
-                <div class="bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-xl">
-                    <div class="flex items-center justify-between p-5 border-b border-gray-100">
+            <div v-if="showModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-black/40">
+                <div class="bg-white rounded-t-2xl sm:rounded-2xl w-full max-w-lg max-h-[92vh] overflow-y-auto shadow-xl">
+                    <div class="sticky top-0 bg-white z-10 flex items-center justify-between p-5 border-b border-gray-100">
                         <h2 class="font-semibold text-gray-900">{{ editing ? 'Edit Address' : 'Add Address' }}</h2>
                         <button @click="showModal = false" class="text-gray-400 hover:text-gray-600 text-xl leading-none">&times;</button>
                     </div>
-                    <form @submit.prevent="submit" class="p-5 space-y-4">
+                    <form @submit.prevent="submit" class="p-4 sm:p-5 space-y-4">
                         <div class="grid sm:grid-cols-2 gap-4">
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Full Name *</label>
@@ -236,13 +236,8 @@ onMounted(load);
                                 <p v-if="pincodeLookupError" class="text-xs text-red-500 mt-1">{{ pincodeLookupError }}</p>
                             </div>
                             <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Country *</label>
-                                <input v-model="form.country" type="text" readonly
-                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-600 focus:outline-none" />
-                            </div>
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">State *</label>
-                                <input v-model="form.state" type="text" required
+                                <label class="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                                <input v-model="form.city" type="text" required
                                     class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400" />
                             </div>
                             <div>
@@ -250,10 +245,15 @@ onMounted(load);
                                 <input v-model="form.district" type="text" required
                                     class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400" />
                             </div>
-                            <div class="sm:col-span-2">
-                                <label class="block text-sm font-medium text-gray-700 mb-1">City *</label>
-                                <input v-model="form.city" type="text" required
+                            <div>
+                                <label class="block text-sm font-medium text-gray-700 mb-1">State *</label>
+                                <input v-model="form.state" type="text" required
                                     class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-amber-400" />
+                            </div>
+                            <div class="sm:col-span-2">
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Country *</label>
+                                <input v-model="form.country" type="text" readonly
+                                    class="w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-600 focus:outline-none" />
                             </div>
                             <div class="sm:col-span-2" v-if="pincodePostOffices.length">
                                 <label class="block text-sm font-medium text-gray-700 mb-1">Nearest Post Offices</label>

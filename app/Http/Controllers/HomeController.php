@@ -18,7 +18,11 @@ class HomeController extends Controller
             return Product::active()
                 ->inStock()
                 ->featured()
-                ->with(['primaryImage', 'category'])
+                ->with([
+                    'primaryImage',
+                    'category',
+                    'variants' => fn ($q) => $q->active()->select('id', 'product_id', 'name', 'price', 'stock')->orderBy('sort_order'),
+                ])
                 ->latest()
                 ->limit(8)
                 ->get();
@@ -27,7 +31,11 @@ class HomeController extends Controller
         $newArrivals = Cache::remember('homepage:new_arrivals', 300, function () {
             return Product::active()
                 ->inStock()
-                ->with(['primaryImage', 'category'])
+                ->with([
+                    'primaryImage',
+                    'category',
+                    'variants' => fn ($q) => $q->active()->select('id', 'product_id', 'name', 'price', 'stock')->orderBy('sort_order'),
+                ])
                 ->latest()
                 ->limit(8)
                 ->get();
@@ -46,7 +54,11 @@ class HomeController extends Controller
             return Product::active()
                 ->inStock()
                 ->where('avg_rating', '>=', 4)
-                ->with(['primaryImage', 'category'])
+                ->with([
+                    'primaryImage',
+                    'category',
+                    'variants' => fn ($q) => $q->active()->select('id', 'product_id', 'name', 'price', 'stock')->orderBy('sort_order'),
+                ])
                 ->orderByDesc('avg_rating')
                 ->limit(4)
                 ->get();
@@ -81,7 +93,11 @@ class HomeController extends Controller
 
     public function products(Request $request): Response
     {
-        $query = Product::active()->inStock()->with(['primaryImage', 'category']);
+        $query = Product::active()->inStock()->with([
+            'primaryImage',
+            'category',
+            'variants' => fn ($q) => $q->active()->select('id', 'product_id', 'name', 'price', 'stock')->orderBy('sort_order'),
+        ]);
 
         if ($request->filled('category')) {
             $category = Category::where('slug', $request->category)->first();

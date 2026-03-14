@@ -14,16 +14,41 @@ const props = defineProps({
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
-const { cartProductIds, getItemForProduct, addToCart, updateQuantity } = useCart();
+const { getItemForProduct, getItemForProductVariant, addToCart, updateQuantity } = useCart();
 const { show: showToast } = useToast();
 const { isWishlisted, toggleWishlist } = useWishlist();
 
 const wishlisted = computed(() => isWishlisted(props.product.id));
 const wishlistLoading = ref(false);
-const productStock = computed(() => props.product.stock ?? 99);
+const hasVariants = computed(() => (props.product.variants?.length ?? 0) > 0);
+const selectedVariant = ref(null);
+const variantModalOpen = ref(false);
 
-const cartItem = computed(() => getItemForProduct(props.product.id));
-const inCart = computed(() => cartProductIds.value.has(props.product.id));
+const variantStock = computed(() => selectedVariant.value?.stock ?? 0);
+const productStock = computed(() => (hasVariants.value ? variantStock.value : (props.product.stock ?? 99)));
+
+const variantsMinPrice = computed(() => {
+    if (!hasVariants.value) return null;
+    const prices = props.product.variants.map((v) => parseFloat(v.price ?? 0)).filter((p) => Number.isFinite(p) && p > 0);
+    if (!prices.length) return null;
+    return Math.min(...prices);
+});
+
+const displayPrice = computed(() => {
+    if (selectedVariant.value) return selectedVariant.value.price;
+    if (hasVariants.value && variantsMinPrice.value != null) return variantsMinPrice.value;
+    return props.product.price;
+});
+
+const cartItem = computed(() => {
+    if (hasVariants.value) {
+        if (!selectedVariant.value) return null;
+        return getItemForProductVariant(props.product.id, selectedVariant.value.id);
+    }
+    return getItemForProduct(props.product.id);
+});
+
+const inCart = computed(() => !!cartItem.value);
 
 const loading = ref(false);
 
@@ -55,13 +80,21 @@ const handleAdd = async (e) => {
         window.location.href = loginRedirectUrl();
         return;
     }
-    if (inCart.value) return; // already in cart — use the +/− controls
+
+    if (hasVariants.value && !selectedVariant.value) {
+        variantModalOpen.value = true;
+        return;
+    }
+
+    if (inCart.value) return;
+
     loading.value = true;
     try {
-        await addToCart(props.product.id, null, 1);
+        await addToCart(props.product.id, selectedVariant.value?.id ?? null, 1);
         showToast(`${props.product.name} added to cart`, 'success');
+        variantModalOpen.value = false;
     } catch (err) {
-        showToast('Could not add to cart. Please try again.', 'error');
+        showToast(err.response?.data?.message || 'Could not add to cart. Please try again.', 'error');
     } finally {
         loading.value = false;
     }
@@ -80,6 +113,19 @@ const handleQtyChange = async (e, delta) => {
     } finally {
         loading.value = false;
     }
+};
+
+const openVariantModal = (e) => {
+    e.preventDefault();
+    variantModalOpen.value = true;
+};
+
+const selectVariant = (variant) => {
+    selectedVariant.value = variant;
+};
+
+const closeVariantModal = () => {
+    variantModalOpen.value = false;
 };
 
 const handleWishlist = async (e) => {
@@ -137,6 +183,9 @@ const handleWishlist = async (e) => {
         <div class="p-3 flex flex-col flex-1">
             <p v-if="product.category" class="text-xs text-amber-600 font-medium mb-0.5">{{ product.category.name }}</p>
             <h3 class="text-sm font-semibold text-gray-900 line-clamp-2 mb-1.5 flex-1 leading-snug">{{ product.name }}</h3>
+            <p v-if="hasVariants && selectedVariant" class="text-[11px] text-amber-700 font-semibold mb-1">
+                {{ selectedVariant.name }}
+            </p>
 
             <!-- Rating -->
             <div v-if="product.avg_rating > 0" class="flex items-center gap-1 mb-2">
@@ -151,7 +200,9 @@ const handleWishlist = async (e) => {
             <!-- Price + Add/Qty -->
             <div class="flex items-center justify-between mt-auto gap-2">
                 <div>
-                    <span class="text-base font-bold text-gray-900">{{ formatPrice(product.price) }}</span>
+                    <span class="text-base font-bold text-gray-900">
+                        {{ hasVariants && !selectedVariant && variantsMinPrice != null ? `From ${formatPrice(displayPrice)}` : formatPrice(displayPrice) }}
+                    </span>
                     <span v-if="discountPercent > 0" class="block text-xs text-gray-400 line-through">{{ formatPrice(product.compare_price) }}</span>
                 </div>
 
@@ -165,6 +216,14 @@ const handleWishlist = async (e) => {
                 </div>
 
                 <!-- Add button when not in cart -->
+                <button
+                    v-else-if="hasVariants && !selectedVariant"
+                    @click.prevent="openVariantModal($event)"
+                    class="h-9 px-3 bg-amber-50 hover:bg-amber-100 text-amber-700 rounded-full text-xs font-bold border border-amber-200 transition-all duration-200 shrink-0"
+                >
+                    Options
+                </button>
+
                 <button v-else @click.prevent="handleAdd($event)" :disabled="loading"
                     class="w-9 h-9 bg-amber-600 hover:bg-amber-700 disabled:bg-amber-400 text-white rounded-full flex items-center justify-center shadow-md transition-all duration-200 shrink-0"
                     :title="user ? 'Add to cart' : 'Login to add'">
@@ -175,6 +234,46 @@ const handleWishlist = async (e) => {
                     <svg v-else class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/>
                     </svg>
+                </button>
+            </div>
+        </div>
+
+        <div v-if="variantModalOpen" class="fixed inset-0 z-[90] bg-black/40 flex items-end sm:items-center justify-center p-3" @click.prevent="closeVariantModal">
+            <div class="w-full max-w-sm rounded-2xl bg-white border border-gray-100 shadow-2xl p-4 sm:p-5" @click.stop>
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <p class="text-xs font-semibold uppercase tracking-wide text-amber-600">Select Variant</p>
+                        <h4 class="text-sm font-bold text-gray-900 line-clamp-1">{{ product.name }}</h4>
+                    </div>
+                    <button @click.prevent="closeVariantModal" class="text-gray-400 hover:text-gray-600">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+
+                <div class="space-y-2 max-h-64 overflow-auto">
+                    <button
+                        v-for="variant in product.variants"
+                        :key="variant.id"
+                        @click.prevent="selectVariant(variant)"
+                        class="w-full flex items-center justify-between rounded-xl border px-3 py-2.5 text-left transition-colors"
+                        :class="selectedVariant?.id === variant.id ? 'border-amber-400 bg-amber-50' : 'border-gray-200 hover:border-amber-300'"
+                    >
+                        <div>
+                            <p class="text-sm font-semibold text-gray-900">{{ variant.name }}</p>
+                            <p class="text-xs text-gray-500">{{ variant.stock > 0 ? `${variant.stock} in stock` : 'Out of stock' }}</p>
+                        </div>
+                        <p class="text-sm font-bold text-gray-900">{{ formatPrice(variant.price) }}</p>
+                    </button>
+                </div>
+
+                <button
+                    @click.prevent="handleAdd($event)"
+                    :disabled="!selectedVariant || selectedVariant.stock <= 0 || loading"
+                    class="mt-4 w-full rounded-xl bg-amber-600 text-white py-2.5 text-sm font-bold hover:bg-amber-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                    {{ loading ? 'Adding...' : 'Add Selected Variant' }}
                 </button>
             </div>
         </div>

@@ -32,7 +32,7 @@ onMounted(() => {
     <div class="min-h-screen flex flex-col bg-gray-50">
         <Head :title="title" />
         <Navbar />
-        <main class="flex-1 pb-14 lg:pb-0">
+        <main class="flex-1 pt-24 pb-14 lg:pb-0">
             <slot />
         </main>
         <Footer class="hidden lg:block" />

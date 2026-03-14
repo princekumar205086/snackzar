@@ -22,9 +22,16 @@ class CartService
     public function addItem(User $user, int $productId, int $quantity = 1, ?int $variantId = null): Cart
     {
         $product = Product::active()->findOrFail($productId);
+        $hasActiveVariants = $product->variants()->active()->exists();
 
         if (!$product->isInStock()) {
             throw ValidationException::withMessages(['product' => ['Product is out of stock.']]);
+        }
+
+        if ($hasActiveVariants && !$variantId) {
+            throw ValidationException::withMessages([
+                'product_variant_id' => ['Please select a variant for this product.'],
+            ]);
         }
 
         $price = $product->price;

@@ -499,13 +499,16 @@ onMounted(() => {
             <Teleport to="body">
                 <div v-if="showAddressModal" class="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
                     <div class="absolute inset-0 bg-black/50" @click="showAddressModal = false"></div>
-                    <div class="relative w-full sm:max-w-lg bg-white sm:rounded-2xl rounded-t-2xl p-5 sm:p-6 shadow-xl z-10">
-                        <div class="flex items-center justify-between mb-4">
+                    <div class="relative w-full sm:max-w-lg bg-white sm:rounded-2xl rounded-t-2xl max-h-[92vh] overflow-y-auto shadow-xl z-10">
+                        <div class="sticky top-0 z-10 bg-white border-b border-gray-100 px-5 py-4 sm:px-6">
+                            <div class="flex items-center justify-between">
                             <h3 class="font-semibold text-gray-900 text-lg">Add New Address</h3>
                             <button @click="showAddressModal = false" class="text-gray-400 hover:text-gray-600">
                                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
                             </button>
+                            </div>
                         </div>
+                        <div class="p-5 sm:p-6">
                         <div class="space-y-3">
                             <div class="grid grid-cols-2 gap-3">
                                 <div>
@@ -544,13 +547,8 @@ onMounted(() => {
                                     <p v-if="pincodeLookupError" class="text-xs text-red-500 mt-0.5">{{ pincodeLookupError }}</p>
                                 </div>
                                 <div>
-                                    <label class="text-xs text-gray-500 font-medium">Country *</label>
-                                    <input v-model="newAddr.country" type="text" readonly
-                                        class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-600 focus:outline-none" />
-                                </div>
-                                <div>
-                                    <label class="text-xs text-gray-500 font-medium">State *</label>
-                                    <input v-model="newAddr.state" type="text" placeholder="State"
+                                    <label class="text-xs text-gray-500 font-medium">City *</label>
+                                    <input v-model="newAddr.city" type="text" placeholder="City"
                                         class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
                                 </div>
                                 <div>
@@ -558,10 +556,15 @@ onMounted(() => {
                                     <input v-model="newAddr.district" type="text" placeholder="District"
                                         class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
                                 </div>
-                                <div class="col-span-2">
-                                    <label class="text-xs text-gray-500 font-medium">City *</label>
-                                    <input v-model="newAddr.city" type="text" placeholder="City"
+                                <div>
+                                    <label class="text-xs text-gray-500 font-medium">State *</label>
+                                    <input v-model="newAddr.state" type="text" placeholder="State"
                                         class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400" />
+                                </div>
+                                <div class="col-span-2">
+                                    <label class="text-xs text-gray-500 font-medium">Country *</label>
+                                    <input v-model="newAddr.country" type="text" readonly
+                                        class="mt-1 w-full border border-gray-200 rounded-lg px-3 py-2 text-sm bg-gray-50 text-gray-600 focus:outline-none" />
                                 </div>
                                 <div class="col-span-2" v-if="pincodePostOffices.length">
                                     <label class="text-xs text-gray-500 font-medium">Nearest Post Offices</label>
@@ -574,6 +577,7 @@ onMounted(() => {
                             <button @click="saveAddress" :disabled="savingAddr" class="flex-1 bg-amber-500 hover:bg-amber-600 disabled:opacity-50 text-white font-semibold py-2.5 rounded-xl text-sm transition-colors">
                                 {{ savingAddr ? 'Saving…' : 'Save Address' }}
                             </button>
+                        </div>
                         </div>
                     </div>
                 </div>

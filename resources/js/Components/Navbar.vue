@@ -78,7 +78,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
 </script>
 
 <template>
-    <div class="sticky top-0 z-50">
+    <div class="fixed top-0 left-0 right-0 z-[60]">
         <!-- Promo Bar -->
         <div class="bg-amber-600 text-white text-center text-xs sm:text-sm py-2 px-4 font-medium overflow-hidden">
             <span class="hidden sm:inline">🎉 Free delivery on orders above ₹499 · Authentic Bihari Snacks, Fresh from Source!</span>

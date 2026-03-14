@@ -62,7 +62,7 @@ watch(sortBy, () => applyFilters());
         <div class="bg-gray-50 min-h-screen">
 
             <!-- Page Header -->
-            <div class="bg-white border-b border-gray-100 sticky top-0 z-20 shadow-sm">
+            <div class="bg-white border-b border-gray-100 sticky top-24 z-20 shadow-sm">
                 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <!-- Title + search + sort row -->
                     <div class="flex flex-col sm:flex-row items-start sm:items-center gap-3 mb-4">
