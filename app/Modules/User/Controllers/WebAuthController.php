@@ -7,7 +7,10 @@ use App\Modules\User\DTOs\LoginDTO;
 use App\Modules\User\DTOs\RegisterDTO;
 use App\Modules\User\Requests\LoginRequest;
 use App\Modules\User\Requests\RegisterRequest;
+use App\Modules\User\Requests\SendOtpRequest;
+use App\Modules\User\Requests\VerifyOtpRequest;
 use App\Modules\User\Services\AuthService;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
@@ -52,16 +55,7 @@ class WebAuthController extends Controller
             return redirect()->to($redirectTo);
         }
 
-        $user = $result['user'];
-        if ($user->hasRole('admin')) {
-            return redirect()->intended('/admin');
-        } elseif ($user->hasRole('seller')) {
-            return redirect()->intended('/seller');
-        } elseif ($user->hasRole('delivery_partner')) {
-            return redirect()->intended('/delivery');
-        }
-
-        return redirect()->intended('/');
+        return redirect()->to($this->resolveDashboardPath($result['user']));
     }
 
     public function showRegister(): Response
@@ -76,7 +70,10 @@ class WebAuthController extends Controller
 
         Auth::login($user);
 
-        return redirect('/')->with('success', 'Registration successful. Please verify your email.');
+        $request->session()->regenerate();
+
+        return redirect()->to($this->resolveDashboardPath($user))
+            ->with('success', 'Registration successful. Please verify your email.');
     }
 
     public function logout(Request $request)
@@ -169,11 +166,7 @@ class WebAuthController extends Controller
                 return redirect()->to($redirectTo);
             }
 
-            $user = $result['user'];
-            if ($user->hasRole('admin')) return redirect()->intended('/admin/dashboard');
-            if ($user->hasRole('seller')) return redirect()->intended('/seller/dashboard');
-            if ($user->hasRole('delivery_partner')) return redirect()->intended('/delivery/dashboard');
-            return redirect()->intended('/dashboard');
+            return redirect()->to($this->resolveDashboardPath($result['user']));
         } catch (\Exception $e) {
             return redirect('/login')->withErrors(['email' => 'Google authentication failed. Please try again.']);
         }
@@ -225,13 +218,45 @@ class WebAuthController extends Controller
         $request->session()->regenerate();
 
         return response()->json([
-            'redirect' => $this->resolveRedirectTo($request) ?? '/dashboard',
+            'redirect' => $this->resolveRedirectTo($request) ?? $this->resolveDashboardPath($result['user']),
         ]);
     }
 
     public function showOtpLogin(): Response
     {
-        return Inertia::render('Auth/OtpLogin');
+        return Inertia::render('Auth/OtpLogin', [
+            'redirectTo' => $this->sanitizeRedirect(request()->query('redirect')),
+        ]);
+    }
+
+    public function sendOtp(SendOtpRequest $request): JsonResponse
+    {
+        $this->authService->sendOtp($request->validated('phone'));
+
+        return response()->json([
+            'message' => 'OTP sent successfully.',
+        ]);
+    }
+
+    public function verifyOtp(VerifyOtpRequest $request): JsonResponse
+    {
+        $result = $this->authService->verifyOtp(
+            $request->validated('phone'),
+            $request->validated('otp')
+        );
+
+        Auth::login($result['user'], true);
+        $request->session()->regenerate();
+
+        return response()->json([
+            'message' => 'OTP verified successfully.',
+            'redirect' => $this->resolveRedirectTo($request) ?? $this->resolveDashboardPath($result['user']),
+            'user' => [
+                'id' => $result['user']->id,
+                'name' => $result['user']->name,
+                'roles' => $result['user']->getRoleNames()->values(),
+            ],
+        ]);
     }
 
     public function showVerifyEmail(): Response
@@ -266,5 +291,10 @@ class WebAuthController extends Controller
         }
 
         return $redirect;
+    }
+
+    private function resolveDashboardPath($user): string
+    {
+        return method_exists($user, 'dashboardPath') ? $user->dashboardPath() : '/';
     }
 }

@@ -4,6 +4,7 @@ namespace App\Modules\User\Services;
 
 use App\Models\Otp;
 use App\Models\User;
+use App\Services\Sms\InfobipSmsService;
 use App\Modules\User\DTOs\LoginDTO;
 use App\Modules\User\DTOs\RegisterDTO;
 use Illuminate\Auth\Events\PasswordReset;
@@ -11,10 +12,15 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Password;
 use Illuminate\Support\Str;
+use Throwable;
 use Illuminate\Validation\ValidationException;
 
 class AuthService
 {
+    public function __construct(
+        private readonly InfobipSmsService $smsService
+    ) {}
+
     public function register(RegisterDTO $dto): User
     {
         $user = User::create([
@@ -66,17 +72,26 @@ class AuthService
             ->whereNull('verified_at')
             ->delete();
 
-        $otpCode = str_pad((string) random_int(0, 999999), 6, '0', STR_PAD_LEFT);
+        $otpLength = (int) config('snackzar.otp.length', 6);
+        $maxValue = (10 ** $otpLength) - 1;
+        $otpCode = str_pad((string) random_int(0, $maxValue), $otpLength, '0', STR_PAD_LEFT);
 
-        Otp::create([
+        $otpRecord = Otp::create([
             'identifier' => $phone,
             'otp' => Hash::make($otpCode),
             'type' => 'phone',
             'expires_at' => now()->addMinutes(config('snackzar.otp.expiry_minutes', 10)),
         ]);
 
-        // In production, send via Twilio. For now, log it.
-        logger()->info("OTP for {$phone}: {$otpCode}");
+        try {
+            $this->smsService->sendOtp($phone, $otpCode);
+        } catch (Throwable $exception) {
+            $otpRecord->delete();
+
+            throw ValidationException::withMessages([
+                'phone' => ['Unable to send OTP right now. Please try again shortly.'],
+            ]);
+        }
     }
 
     public function verifyOtp(string $phone, string $otp): array
@@ -120,9 +135,11 @@ class AuthService
             $user->update(['phone_verified_at' => now()]);
         }
 
-        if (! $user->hasRole('user')) {
+        if ($user->getRoleNames()->isEmpty()) {
             $user->assignRole('user');
         }
+
+        $user->loadMissing('roles');
 
         $token = $user->createToken('otp-auth-token')->plainTextToken;
 
@@ -155,6 +172,8 @@ class AuthService
             ]);
             $user->assignRole('user');
         }
+
+        $user->loadMissing('roles');
 
         $token = $user->createToken('google-auth-token')->plainTextToken;
 

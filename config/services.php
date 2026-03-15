@@ -58,10 +58,10 @@ return [
         'redirect' => env('GOOGLE_REDIRECT_URI'),
     ],
 
-    'twilio' => [
-        'sid' => env('TWILIO_SID'),
-        'token' => env('TWILIO_AUTH_TOKEN'),
-        'from' => env('TWILIO_PHONE_NUMBER'),
+    'infobip' => [
+        'api_key' => env('SMS_API_KEY'),
+        'base_url' => env('SMS_API_URL'),
+        'sender' => env('SMS_SENDER_ID'),
     ],
 
 ];

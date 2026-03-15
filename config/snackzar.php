@@ -24,13 +24,15 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Twilio SMS
+    | SMS Delivery
     |--------------------------------------------------------------------------
     */
-    'twilio' => [
-        'sid' => env('TWILIO_SID'),
-        'auth_token' => env('TWILIO_AUTH_TOKEN'),
-        'phone_number' => env('TWILIO_PHONE_NUMBER'),
+    'sms' => [
+        'default_country_code' => env('SMS_DEFAULT_COUNTRY_CODE', '91'),
+        'otp_template_id' => env('SMS_TEMPLATE_ID_OTP'),
+        'order_placed_template_id' => env('SMS_TEMPLATE_ID_ORDER_PLACED'),
+        'order_status_template_id' => env('SMS_TEMPLATE_ID_ORDER_STATUS'),
+        'india_dlt_principal_entity_id' => env('SMS_DLT_PRINCIPAL_ENTITY_ID'),
     ],
 
     /*

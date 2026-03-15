@@ -43,57 +43,59 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/email/verify', [AuthController::class, 'verifyEmail'])->name('email.verify');
     Route::post('/auth/email/resend', [AuthController::class, 'resendVerificationEmail'])->name('email.resend');
 
-    // Profile
-    Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
-    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.password');
-    Route::delete('/profile', [ProfileController::class, 'deleteAccount'])->name('profile.delete');
+    Route::middleware('prevent_admin_customer')->group(function () {
+        // Profile
+        Route::get('/profile', [ProfileController::class, 'show'])->name('profile.show');
+        Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+        Route::put('/profile/password', [ProfileController::class, 'changePassword'])->name('profile.password');
+        Route::delete('/profile', [ProfileController::class, 'deleteAccount'])->name('profile.delete');
 
-    // Addresses
-    Route::apiResource('addresses', AddressController::class)->names([
-        'index' => 'addresses.index',
-        'store' => 'addresses.store',
-        'show' => 'addresses.show',
-        'update' => 'addresses.update',
-        'destroy' => 'addresses.destroy',
-    ]);
-    Route::patch('/addresses/{address}/default', [AddressController::class, 'setDefault'])->name('addresses.default');
-    Route::get('/pincode/{pincode}', [AddressController::class, 'lookupPincode'])->name('addresses.pincode.lookup');
+        // Addresses
+        Route::apiResource('addresses', AddressController::class)->names([
+            'index' => 'addresses.index',
+            'store' => 'addresses.store',
+            'show' => 'addresses.show',
+            'update' => 'addresses.update',
+            'destroy' => 'addresses.destroy',
+        ]);
+        Route::patch('/addresses/{address}/default', [AddressController::class, 'setDefault'])->name('addresses.default');
+        Route::get('/pincode/{pincode}', [AddressController::class, 'lookupPincode'])->name('addresses.pincode.lookup');
 
-    // Cart
-    Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
-    Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
-    Route::put('/cart/{cartItem}', [CartController::class, 'update'])->name('cart.update');
-    Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
-    Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
+        // Cart
+        Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+        Route::post('/cart', [CartController::class, 'store'])->name('cart.store');
+        Route::put('/cart/{cartItem}', [CartController::class, 'update'])->name('cart.update');
+        Route::delete('/cart/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
+        Route::delete('/cart', [CartController::class, 'clear'])->name('cart.clear');
 
-    // Wishlist
-    Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
-    Route::post('/wishlist', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
-    Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
+        // Wishlist
+        Route::get('/wishlist', [WishlistController::class, 'index'])->name('wishlist.index');
+        Route::post('/wishlist', [WishlistController::class, 'toggle'])->name('wishlist.toggle');
+        Route::delete('/wishlist/{product}', [WishlistController::class, 'destroy'])->name('wishlist.destroy');
 
-    // Reviews
-    Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
-    Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
-    Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
+        // Reviews
+        Route::post('/products/{product}/reviews', [ReviewController::class, 'store'])->name('reviews.store');
+        Route::put('/reviews/{review}', [ReviewController::class, 'update'])->name('reviews.update');
+        Route::delete('/reviews/{review}', [ReviewController::class, 'destroy'])->name('reviews.destroy');
 
-    // Coupon validation (public — or auth, either is fine)
-    Route::post('/coupon/validate', [CouponController::class, 'validate'])->name('coupon.validate');
-    Route::get('/coupon/my-coupons', [CouponController::class, 'myCoupons'])->name('coupon.mine');
+        // Coupon validation (public — or auth, either is fine)
+        Route::post('/coupon/validate', [CouponController::class, 'validate'])->name('coupon.validate');
+        Route::get('/coupon/my-coupons', [CouponController::class, 'myCoupons'])->name('coupon.mine');
 
-    // Orders
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
-    Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
-    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
-    Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
+        // Orders
+        Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+        Route::post('/orders', [OrderController::class, 'store'])->name('orders.store');
+        Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+        Route::post('/orders/{order}/cancel', [OrderController::class, 'cancel'])->name('orders.cancel');
 
-    // Notifications
-    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
-    Route::get('/notifications/unread', [NotificationController::class, 'unread'])->name('notifications.unread');
-    Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
-    Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
+        // Notifications
+        Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications.index');
+        Route::get('/notifications/unread', [NotificationController::class, 'unread'])->name('notifications.unread');
+        Route::patch('/notifications/{notification}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+        Route::patch('/notifications/read-all', [NotificationController::class, 'markAllRead'])->name('notifications.readAll');
 
-    // Media
-    Route::post('/media/upload', [MediaController::class, 'upload'])->name('media.upload');
-    Route::delete('/media', [MediaController::class, 'destroy'])->name('media.destroy');
+        // Media
+        Route::post('/media/upload', [MediaController::class, 'upload'])->name('media.upload');
+        Route::delete('/media', [MediaController::class, 'destroy'])->name('media.destroy');
+    });
 });

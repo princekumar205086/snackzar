@@ -3,6 +3,8 @@
 namespace App\Notifications;
 
 use App\Models\Order;
+use App\Notifications\Channels\InfobipSmsChannel;
+use App\Notifications\Messages\InfobipSmsMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -17,7 +19,7 @@ class OrderPlacedNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', InfobipSmsChannel::class];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -40,5 +42,12 @@ class OrderPlacedNotification extends Notification
             'total' => $this->order->total,
             'message' => "Order #{$this->order->order_number} placed successfully.",
         ];
+    }
+
+    public function toInfobip(object $notifiable): InfobipSmsMessage
+    {
+        return new InfobipSmsMessage(
+            "Snackzar: Your order {$this->order->order_number} is confirmed. Total amount: INR {$this->order->total}. Track it from your account."
+        );
     }
 }

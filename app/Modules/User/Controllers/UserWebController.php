@@ -5,6 +5,7 @@ namespace App\Modules\User\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\Payment;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
@@ -13,8 +14,12 @@ use Razorpay\Api\Api as RazorpayApi;
 
 class UserWebController extends Controller
 {
-    public function dashboard(): Response
+    public function dashboard(Request $request): Response|\Illuminate\Http\RedirectResponse
     {
+        if ($redirect = $this->redirectToRoleDashboard($request->user())) {
+            return redirect()->to($redirect);
+        }
+
         return Inertia::render('User/Dashboard');
     }
 
@@ -156,5 +161,26 @@ class UserWebController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Payment recorded but order update failed.'], 422);
         }
+    }
+
+    private function redirectToRoleDashboard(?User $user): ?string
+    {
+        if (! $user) {
+            return null;
+        }
+
+        if ($user->hasRole('admin')) {
+            return '/admin/dashboard';
+        }
+
+        if ($user->hasRole('seller') && ! $user->hasRole('user')) {
+            return '/seller/dashboard';
+        }
+
+        if ($user->hasRole('delivery_partner') && ! $user->hasRole('user')) {
+            return '/delivery/dashboard';
+        }
+
+        return null;
     }
 }

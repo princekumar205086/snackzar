@@ -3,6 +3,8 @@
 namespace App\Notifications;
 
 use App\Models\Order;
+use App\Notifications\Channels\InfobipSmsChannel;
+use App\Notifications\Messages\InfobipSmsMessage;
 use Illuminate\Bus\Queueable;
 use Illuminate\Notifications\Messages\MailMessage;
 use Illuminate\Notifications\Notification;
@@ -18,7 +20,7 @@ class OrderStatusNotification extends Notification
 
     public function via(object $notifiable): array
     {
-        return ['mail', 'database'];
+        return ['mail', 'database', InfobipSmsChannel::class];
     }
 
     public function toMail(object $notifiable): MailMessage
@@ -53,5 +55,23 @@ class OrderStatusNotification extends Notification
             'new_status' => $this->order->status,
             'message' => "Order #{$this->order->order_number} status changed to {$this->order->status}.",
         ];
+    }
+
+    public function toInfobip(object $notifiable): InfobipSmsMessage
+    {
+        $statusMessages = [
+            'confirmed' => 'has been confirmed and is being prepared.',
+            'processing' => 'is being processed.',
+            'shipped' => 'has been shipped.',
+            'out_for_delivery' => 'is out for delivery.',
+            'delivered' => 'has been delivered.',
+            'cancelled' => 'has been cancelled.',
+        ];
+
+        $message = $statusMessages[$this->order->status] ?? "status changed to {$this->order->status}.";
+
+        return new InfobipSmsMessage(
+            "Snackzar: Order {$this->order->order_number} {$message}"
+        );
     }
 }

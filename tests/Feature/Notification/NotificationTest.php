@@ -2,6 +2,7 @@
 
 use App\Models\Order;
 use App\Models\User;
+use App\Notifications\Channels\InfobipSmsChannel;
 use App\Notifications\OrderPlacedNotification;
 use App\Notifications\OrderStatusNotification;
 use App\Notifications\SellerApprovedNotification;
@@ -97,5 +98,5 @@ test('notification channels are correct', function () {
     $order = new Order(['id' => 1, 'order_number' => 'T', 'total' => 100]);
     $notification = new OrderPlacedNotification($order);
 
-    expect($notification->via($this->user))->toBe(['mail', 'database']);
+    expect($notification->via($this->user))->toBe(['mail', 'database', InfobipSmsChannel::class]);
 });

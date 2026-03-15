@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\User;
+use App\Services\Sms\InfobipSmsService;
 use Database\Seeders\RolePermissionSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Notification;
@@ -112,6 +113,10 @@ test('unauthenticated user cannot access protected routes', function () {
 });
 
 test('user can request OTP', function () {
+    $this->mock(InfobipSmsService::class, function ($mock) {
+        $mock->shouldReceive('sendOtp')->once()->andReturnNull();
+    });
+
     $response = $this->postJson('/api/v1/user/auth/otp/send', [
         'phone' => '9876543210',
     ]);
@@ -143,4 +148,52 @@ test('registration assigns user role', function () {
 
     $user = User::where('email', 'roletest@example.com')->first();
     expect($user->hasRole('user'))->toBeTrue();
+});
+
+test('admin web login redirects to admin dashboard', function () {
+    $admin = User::factory()->create([
+        'email' => 'admin@example.com',
+        'password' => bcrypt('password'),
+    ]);
+    $admin->assignRole('admin');
+
+    $response = $this->post('/login', [
+        'email' => 'admin@example.com',
+        'password' => 'password',
+    ]);
+
+    $response->assertRedirect('/admin/dashboard');
+    $this->assertAuthenticatedAs($admin);
+});
+
+test('customer dashboard redirects admin back to admin panel', function () {
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
+
+    $response = $this->actingAs($admin)->get('/dashboard');
+
+    $response->assertRedirect('/admin/dashboard');
+});
+
+test('homepage redirects admin to admin dashboard', function () {
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
+
+    $response = $this->actingAs($admin)->get('/');
+
+    $response->assertRedirect('/admin/dashboard');
+});
+
+test('admin cannot access customer cart api', function () {
+    $admin = User::factory()->create();
+    $admin->assignRole('admin');
+    $token = $admin->createToken('admin-test')->plainTextToken;
+
+    $response = $this->withHeaders([
+        'Authorization' => "Bearer {$token}",
+        'Accept' => 'application/json',
+    ])->getJson('/api/v1/user/cart');
+
+    $response->assertStatus(403)
+        ->assertJsonPath('message', 'Admin accounts cannot use customer APIs.');
 });

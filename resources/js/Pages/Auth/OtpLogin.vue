@@ -2,6 +2,10 @@
 import { ref } from 'vue';
 import { Head, router } from '@inertiajs/vue3';
 
+const props = defineProps({
+    redirectTo: { type: String, default: '' },
+});
+
 const step = ref('phone'); // 'phone' | 'otp'
 const phone = ref('');
 const otp = ref('');
@@ -27,11 +31,14 @@ async function sendOtp() {
     error.value = '';
     loading.value = true;
     try {
-        await window.axios.post('/api/v1/user/auth/otp/send', { phone: phone.value });
+        await window.axios.post('/login/otp/send', {
+            phone: phone.value,
+            redirect: props.redirectTo || undefined,
+        });
         step.value = 'otp';
         startCountdown();
     } catch (e) {
-        error.value = e.response?.data?.message ?? 'Failed to send OTP.';
+        error.value = e.response?.data?.errors?.phone?.[0] ?? e.response?.data?.message ?? 'Failed to send OTP.';
     } finally {
         loading.value = false;
     }
@@ -45,18 +52,17 @@ async function verifyOtp() {
     error.value = '';
     loading.value = true;
     try {
-        const res = await window.axios.post('/api/v1/user/auth/otp/verify', {
+        const res = await window.axios.post('/login/otp/verify', {
             phone: phone.value,
             otp: otp.value,
+            redirect: props.redirectTo || undefined,
         });
-        // Server returns user with role info; do a full page redirect
-        const roles = res.data.data?.roles ?? [];
-        if (roles.includes('admin')) window.location.href = '/admin/dashboard';
-        else if (roles.includes('seller')) window.location.href = '/seller/dashboard';
-        else if (roles.includes('delivery_partner')) window.location.href = '/delivery/dashboard';
-        else window.location.href = '/dashboard';
+        window.location.href = res.data?.redirect || '/dashboard';
     } catch (e) {
-        error.value = e.response?.data?.message ?? 'Invalid OTP. Please try again.';
+        error.value = e.response?.data?.errors?.otp?.[0]
+            ?? e.response?.data?.errors?.phone?.[0]
+            ?? e.response?.data?.message
+            ?? 'Invalid OTP. Please try again.';
     } finally {
         loading.value = false;
     }

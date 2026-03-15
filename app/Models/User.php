@@ -15,6 +15,20 @@ class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, HasRoles, Notifiable, SoftDeletes;
 
+    private const ROLE_DASHBOARD_PATHS = [
+        'admin' => '/admin/dashboard',
+        'seller' => '/seller/dashboard',
+        'delivery_partner' => '/delivery/dashboard',
+        'user' => '/dashboard',
+    ];
+
+    private const ROLE_PRIORITY = [
+        'admin',
+        'seller',
+        'delivery_partner',
+        'user',
+    ];
+
     protected $fillable = [
         'name',
         'email',
@@ -105,5 +119,26 @@ class User extends Authenticatable implements MustVerifyEmail
     public function getOrCreateCart(): Cart
     {
         return Cart::firstOrCreate(['user_id' => $this->id]);
+    }
+
+    public function primaryRole(): ?string
+    {
+        foreach (self::ROLE_PRIORITY as $role) {
+            if ($this->hasRole($role)) {
+                return $role;
+            }
+        }
+
+        return null;
+    }
+
+    public function dashboardPath(): string
+    {
+        return self::ROLE_DASHBOARD_PATHS[$this->primaryRole() ?? ''] ?? '/';
+    }
+
+    public function routeNotificationForInfobip(): ?string
+    {
+        return $this->phone ?: null;
     }
 }

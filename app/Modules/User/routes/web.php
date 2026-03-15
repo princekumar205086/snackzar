@@ -20,11 +20,15 @@ Route::middleware('guest')->group(function () {
     Route::post('/auth/google/one-tap', [WebAuthController::class, 'handleGoogleOneTap'])->name('auth.google.one_tap');
 
     Route::get('/login/otp', [WebAuthController::class, 'showOtpLogin'])->name('login.otp');
+    Route::post('/login/otp/send', [WebAuthController::class, 'sendOtp'])->name('login.otp.send');
+    Route::post('/login/otp/verify', [WebAuthController::class, 'verifyOtp'])->name('login.otp.verify');
 });
 
 Route::middleware('auth')->group(function () {
     Route::post('/logout', [WebAuthController::class, 'logout'])->name('logout');
+});
 
+Route::middleware(['auth', 'prevent_admin_customer'])->group(function () {
     // User account pages
     Route::get('/dashboard', [UserWebController::class, 'dashboard'])->name('dashboard');
     Route::get('/orders', [UserWebController::class, 'orders'])->name('orders.index');
@@ -40,6 +44,8 @@ Route::middleware('auth')->group(function () {
 });
 
 // Public pages (auth optional)
-Route::get('/cart', [UserWebController::class, 'cart'])->name('cart');
-Route::get('/checkout', [UserWebController::class, 'checkout'])->name('checkout');
+Route::middleware('prevent_admin_customer')->group(function () {
+    Route::get('/cart', [UserWebController::class, 'cart'])->name('cart');
+    Route::get('/checkout', [UserWebController::class, 'checkout'])->name('checkout');
+});
 
