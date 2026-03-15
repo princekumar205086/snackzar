@@ -79,10 +79,9 @@ onMounted(load);
                     <thead>
                         <tr class="border-b border-gray-700">
                             <th class="text-left text-gray-400 font-medium px-5 py-3">Name</th>
-                            <th class="text-left text-gray-400 font-medium px-5 py-3 hidden md:table-cell">Email</th>
-                            <th class="text-left text-gray-400 font-medium px-5 py-3 hidden lg:table-cell">Role</th>
+                            <th class="text-left text-gray-400 font-medium px-5 py-3 hidden lg:table-cell">Email</th>
                             <th class="text-left text-gray-400 font-medium px-5 py-3">Status</th>
-                            <th class="text-left text-gray-400 font-medium px-5 py-3">Actions</th>
+                            <th class="text-right text-gray-400 font-medium px-5 py-3">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -95,29 +94,26 @@ onMounted(load);
                                     <span class="text-white font-medium">{{ u.name }}</span>
                                 </div>
                             </td>
-                            <td class="px-5 py-3.5 text-gray-400 hidden md:table-cell">{{ u.email }}</td>
-                            <td class="px-5 py-3.5 hidden lg:table-cell">
-                                <span v-for="role in (u.roles ?? [])" :key="role"
-                                    class="inline-flex mr-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-900/50 text-blue-300">
-                                    {{ role }}
-                                </span>
-                            </td>
+                            <td class="px-5 py-3.5 text-gray-400 hidden lg:table-cell">{{ u.email }}</td>
                             <td class="px-5 py-3.5">
                                 <span :class="u.status === 'active' ? 'bg-green-900/50 text-green-400' : 'bg-red-900/50 text-red-400'"
                                     class="px-2 py-0.5 rounded-full text-xs font-medium">
                                     {{ u.status }}
                                 </span>
                             </td>
-                            <td class="px-5 py-3.5">
+                            <td class="px-5 py-3.5 text-right flex items-center justify-end gap-3">
                                 <button @click="toggleStatus(u)" :disabled="statusUpdating === u.id"
                                     :class="u.status === 'active' ? 'text-red-400 hover:text-red-300' : 'text-green-400 hover:text-green-300'"
                                     class="text-xs font-medium transition-colors disabled:opacity-50">
                                     {{ statusUpdating === u.id ? '...' : (u.status === 'active' ? 'Ban' : 'Activate') }}
                                 </button>
+                                <a :href="`/admin/users/${u.id}`" class="text-blue-500 hover:text-blue-400 text-xs font-medium">
+                                    View
+                                </a>
                             </td>
                         </tr>
                         <tr v-if="!users.length">
-                            <td colspan="5" class="text-center text-gray-500 py-8">No users found.</td>
+                            <td colspan="4" class="text-center text-gray-500 py-8">No users found.</td>
                         </tr>
                     </tbody>
                 </table>
