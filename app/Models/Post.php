@@ -5,46 +5,38 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
-class BlogPost extends Model
+class Post extends Model
 {
     use HasFactory;
 
     protected $fillable = [
         'author_id',
+        'blog_post_id',
         'title',
         'slug',
-        'excerpt',
-        'content',
-        'table_of_contents',
-        'faq_items',
-        'featured_image',
         'category',
         'cluster',
-        'tags',
-        'status',
+        'excerpt',
+        'content',
+        'featured_image',
+        'image_source',
+        'image_alt',
+        'table_of_contents',
+        'faq_items',
         'is_featured',
-        'meta_title',
-        'meta_description',
-        'canonical_url',
-        'article_schema',
-        'breadcrumb_schema',
-        'faq_schema',
-        'meta_keywords',
+        'status',
         'published_at',
-        'views_count',
         'content_word_count',
     ];
 
     protected function casts(): array
     {
         return [
-            'tags' => 'array',
             'table_of_contents' => 'array',
             'faq_items' => 'array',
-            'article_schema' => 'array',
-            'breadcrumb_schema' => 'array',
-            'faq_schema' => 'array',
             'is_featured' => 'boolean',
             'published_at' => 'datetime',
         ];
@@ -55,9 +47,14 @@ class BlogPost extends Model
         return $this->belongsTo(User::class, 'author_id');
     }
 
-    public function seoMeta()
+    public function images(): HasMany
     {
-        return $this->morphOne(SeoMeta::class, 'seoable');
+        return $this->hasMany(PostImage::class);
+    }
+
+    public function meta(): HasOne
+    {
+        return $this->hasOne(PostMeta::class);
     }
 
     public function scopePublished($query)
@@ -65,15 +62,5 @@ class BlogPost extends Model
         return $query->where('status', 'published')
             ->whereNotNull('published_at')
             ->where('published_at', '<=', now());
-    }
-
-    public function scopeDraft($query)
-    {
-        return $query->where('status', 'draft');
-    }
-
-    public function incrementViews(): void
-    {
-        $this->increment('views_count');
     }
 }

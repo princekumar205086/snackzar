@@ -46,9 +46,19 @@ class BlogController extends Controller
             ->limit(3)
             ->get(['id', 'title', 'slug', 'excerpt', 'featured_image', 'category']);
 
+        $canonicalUrl = $post->canonical_url ?: route('blog.show', ['slug' => $post->slug]);
+
+        $schemas = array_values(array_filter([
+            $post->article_schema,
+            $post->breadcrumb_schema,
+            $post->faq_schema,
+        ]));
+
         return Inertia::render('Blog/Show', [
             'post' => $post,
             'relatedPosts' => $relatedPosts,
+            'canonicalUrl' => $canonicalUrl,
+            'schemas' => $schemas,
         ]);
     }
 }

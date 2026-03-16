@@ -5,6 +5,8 @@ import AppLayout from '@/Layouts/AppLayout.vue'
 const props = defineProps({
     post: Object,
     relatedPosts: Array,
+    canonicalUrl: String,
+    schemas: Array,
 })
 
 function formatDate(dateString) {
@@ -23,7 +25,24 @@ function readingTime(content) {
 </script>
 
 <template>
-    <Head :title="`${post.meta_title || post.title} - Snackzar Blog`" />
+    <Head>
+        <title>{{ post.meta_title || `${post.title} | Snackzar` }}</title>
+        <meta name="description" :content="post.meta_description || post.excerpt || ''" />
+        <meta name="keywords" :content="post.meta_keywords || ''" />
+        <link rel="canonical" :href="canonicalUrl" />
+        <meta property="og:type" content="article" />
+        <meta property="og:title" :content="post.meta_title || post.title" />
+        <meta property="og:description" :content="post.meta_description || post.excerpt || ''" />
+        <meta property="og:url" :content="canonicalUrl" />
+        <meta property="og:image" :content="post.featured_image || ''" />
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" :content="post.meta_title || post.title" />
+        <meta name="twitter:description" :content="post.meta_description || post.excerpt || ''" />
+        <meta name="twitter:image" :content="post.featured_image || ''" />
+        <template v-for="(schema, index) in schemas || []" :key="`schema-${index}`">
+            <component :is="'script'" type="application/ld+json" v-html="JSON.stringify(schema)" />
+        </template>
+    </Head>
     <AppLayout>
         <article>
             <!-- Hero Image -->

@@ -151,6 +151,8 @@ test('registration assigns user role', function () {
 });
 
 test('admin web login redirects to admin dashboard', function () {
+    $this->withoutMiddleware(\Illuminate\Foundation\Http\Middleware\ValidateCsrfToken::class);
+
     $admin = User::factory()->create([
         'email' => 'admin@example.com',
         'password' => bcrypt('password'),

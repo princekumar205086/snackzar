@@ -26,6 +26,28 @@ Route::middleware('prevent_admin_customer')->group(function () {
         ->name('seo.keyword.landing');
 });
 
+// SEO - Robots.txt
+Route::get('/robots.txt', function () {
+    $service = new \App\Modules\Shared\Services\RobotsTxtService();
+    return response($service->generate(), 200, ['Content-Type' => 'text/plain']);
+})->name('robots.txt');
+
+// PWA - Manifest and Service Worker
+Route::get('/manifest.json', function () {
+    $service = new \App\Modules\Shared\Services\PwaService();
+    return response($service->generateManifest(), 200, ['Content-Type' => 'application/json']);
+})->name('pwa.manifest');
+
+Route::get('/service-worker.js', function () {
+    $service = new \App\Modules\Shared\Services\PwaService();
+    return response($service->generateServiceWorker(), 200, ['Content-Type' => 'application/javascript']);
+})->name('pwa.service-worker');
+
+Route::get('/offline.html', function () {
+    $service = new \App\Modules\Shared\Services\PwaService();
+    return response($service->generateOfflinePage(), 200, ['Content-Type' => 'text/html']);
+})->name('pwa.offline');
+
 // SEO Sitemaps
 Route::get('/sitemap.xml', [SitemapController::class, 'index'])->name('sitemap');
 Route::get('/sitemap-index.xml', [SitemapController::class, 'indexXml'])->name('sitemap.index');

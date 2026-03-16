@@ -17,7 +17,7 @@ const title = props.seo?.title || 'Snackzar SEO Landing';
         <section class="bg-gradient-to-br from-amber-50 via-orange-50 to-yellow-50 border-b border-amber-100">
             <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
                 <p class="inline-flex items-center px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-semibold tracking-wide">
-                    Programmatic SEO Landing
+                    Premium Healthy Snacks
                 </p>
 
                 <h1 class="mt-4 text-3xl sm:text-4xl md:text-5xl font-extrabold text-gray-900 leading-tight">
@@ -50,16 +50,16 @@ const title = props.seo?.title || 'Snackzar SEO Landing';
         <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
             <div class="grid md:grid-cols-3 gap-4">
                 <article class="rounded-2xl bg-white p-6 border border-gray-100 shadow-sm">
-                    <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Coverage</h2>
-                    <p class="mt-2 text-gray-900 font-bold text-lg">38 Bihar Districts + 400+ India + 500+ Global</p>
+                    <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Freshness Promise</h2>
+                    <p class="mt-2 text-gray-900 font-bold text-lg">Freshly packed makhana with strict quality checks</p>
                 </article>
                 <article class="rounded-2xl bg-white p-6 border border-gray-100 shadow-sm">
-                    <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Keyword Engine</h2>
-                    <p class="mt-2 text-gray-900 font-bold text-lg">2.5 Lakh Long-Tail Combinations</p>
+                    <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Authentic Source</h2>
+                    <p class="mt-2 text-gray-900 font-bold text-lg">Authentic Bihari snacks from trusted makers</p>
                 </article>
                 <article class="rounded-2xl bg-white p-6 border border-gray-100 shadow-sm">
-                    <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Sitemaps</h2>
-                    <p class="mt-2 text-gray-900 font-bold text-lg">Auto-sharded for 150k+ URLs</p>
+                    <h2 class="text-sm font-semibold text-gray-500 uppercase tracking-wide">Fast Delivery</h2>
+                    <p class="mt-2 text-gray-900 font-bold text-lg">Quick delivery and secure checkout experience</p>
                 </article>
             </div>
 
