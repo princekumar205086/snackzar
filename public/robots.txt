@@ -1,2 +1,86 @@
+# SNACKZAR ROBOTS.TXT - Global SEO Configuration
+# Last Updated: 2026-03-17
+
+# Primary rules for all crawlers
 User-agent: *
-Disallow:
+Allow: /
+Allow: /products
+Allow: /blog
+Allow: /category
+Allow: /search
+Allow: /makhana-in-*
+Allow: /buy-makhana-online-*
+Allow: /seo/k/
+Allow: /sitemap.xml
+Allow: /manifest.json
+Allow: /robots.txt
+Allow: /sitemap-keywords-*.xml
+
+# Disallow admin and private areas
+Disallow: /admin/
+Disallow: /api/admin/
+Disallow: /api/seller/
+Disallow: /api/delivery/
+Disallow: /user/
+Disallow: /seller/
+Disallow: /delivery/
+Disallow: /auth/
+Disallow: /email/
+Disallow: /*.json
+Disallow: /*.pdf
+Disallow: /checkout
+Disallow: /cart
+Disallow: /wishlist
+Disallow: /orders
+Disallow: /addresses
+Disallow: /payments
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /logout
+Disallow: /?*sort=
+Disallow: /?*redirect=
+Disallow: /?*token=
+Disallow: /*?*page=
+Disallow: /search?q=
+Disallow: /vendor/
+
+# Allow specific search parameters that aid SEO
+Allow: /?category=
+Allow: /?brand=
+Allow: /?price=
+Allow: /?rating=
+Allow: /?sort=popularity
+Allow: /?sort=newest
+Allow: /?sort=price_low
+Allow: /?sort=price_high
+
+# Google specific rules
+User-agent: Googlebot
+Allow: /
+Crawl-delay: 0
+Request-rate: 100/1m
+
+# Bing specific rules
+User-agent: Bingbot
+Allow: /
+Crawl-delay: 1
+Request-rate: 30/1m
+
+# Block bad bots
+User-agent: MJ12bot
+User-agent: AhrefsBot
+User-agent: SemrushBot
+User-agent: DotBot
+User-agent: SiteAuditBot
+Disallow: /
+
+# Sitemap
+Sitemap: https://snackzar.com/sitemap.xml
+Sitemap: https://snackzar.com/sitemap-index.xml
+
+# Crawl delay and request rate (default)
+Crawl-delay: 2
+Request-rate: 10/1m
+
+# Cache control
+Cache-control: max-age=86400

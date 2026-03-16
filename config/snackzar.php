@@ -85,4 +85,74 @@ return [
         'length' => 6,
         'expiry_minutes' => 10,
     ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | SEO Configuration - Global and Regional Settings
+    |--------------------------------------------------------------------------
+    */
+    'seo' => [
+        'brand_name' => env('SEO_BRAND_NAME', 'Snackzar'),
+        'phone' => env('SEO_PHONE', '+91-XXXXXX'),
+
+        // Canonical domain
+        'canonical_domain' => env('APP_DOMAIN', 'snackzar.com'),
+        'canonical_scheme' => env('APP_SCHEME', 'https'),
+
+        // Social media
+        'social_media' => [
+            'facebook' => 'https://facebook.com/snackzar',
+            'instagram' => 'https://instagram.com/snackzar',
+            'twitter' => 'https://twitter.com/snackzar',
+            'youtube' => 'https://youtube.com/snackzar',
+        ],
+
+        // Verification codes
+        'google_verification' => env('GOOGLE_SITE_VERIFICATION', ''),
+        'google_analytics' => env('GOOGLE_ANALYTICS_ID', ''),
+        'google_search_console' => env('GOOGLE_SEARCH_CONSOLE', ''),
+        'bing_verification' => env('BING_WEBMASTER_VERIFICATION', ''),
+
+        // Regio nal/Language settings for hreflang
+        'regions' => [
+            'in' => ['language' => 'en-IN', 'country' => 'IN', 'currency' => 'INR', 'default' => true],
+            'us' => ['language' => 'en-US', 'country' => 'US', 'currency' => 'USD'],
+            'gb' => ['language' => 'en-GB', 'country' => 'GB', 'currency' => 'GBP'],
+            'ae' => ['language' => 'en-AE', 'country' => 'AE', 'currency' => 'AED'],
+            'sg' => ['language' => 'en-SG', 'country' => 'SG', 'currency' => 'SGD'],
+        ],
+
+        // Sitemap settings
+        'sitemap_cache_hours' => 24,
+        'sitemap_include_products' => true,
+        'sitemap_include_categories' => true,
+        'sitemap_include_blog' => true,
+        'sitemap_include_cities' => true,
+        'sitemap_chunk_size' => env('SEO_SITEMAP_CHUNK_SIZE', 45000),
+
+        // Programmatic SEO scale settings
+        'programmatic' => [
+            'target_indexable_pages' => env('SEO_TARGET_INDEXABLE_PAGES', 150000),
+            'keyword_universe_size' => env('SEO_KEYWORD_UNIVERSE_SIZE', 250000),
+            'indian_city_target' => env('SEO_INDIAN_CITY_TARGET', 420),
+            'global_city_target' => env('SEO_GLOBAL_CITY_TARGET', 520),
+        ],
+
+        // JSON-LD Schema
+        'enable_schema_org' => true,
+        'enable_breadcrumb_schema' => true,
+        'enable_product_schema' => true,
+        'enable_review_schema' => true,
+
+        // PWA Settings
+        'enable_pwa' => true,
+        'pwa_service_worker' => '/service-worker.js',
+        'pwa_manifest' => '/manifest.json',
+        'pwa_offline_page' => '/offline.html',
+
+        // Performance
+        'enable_lazy_loading' => true,
+        'enable_image_optimization' => true,
+        'cache_ttl_minutes' => 60,
+    ],
 ];

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - Snackzar</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            text-align: center;
+            background: white;
+            border-radius: 16px;
+            padding: 48px 32px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            margin: 20px;
+        }
+
+        .icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+            animation: bounce 2s ease-in-out infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        h1 {
+            font-size: 32px;
+            color: #333;
+            margin-bottom: 16px;
+        }
+
+        .message {
+            font-size: 16px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-direction: column;
+        }
+
+        button {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .offline-tips {
+            text-align: left;
+            background: #f9f9f9;
+            border-left: 4px solid #667eea;
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 32px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .offline-tips h3 {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 12px;
+        }
+
+        .offline-tips ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .offline-tips li {
+            margin-bottom: 8px;
+            padding-left: 24px;
+            position: relative;
+        }
+
+        .offline-tips li:before {
+            content: '✓';
+            position: absolute;
+            left: 0;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .status {
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #eee;
+            font-size: 12px;
+            color: #999;
+        }
+
+        @media (max-width: 480px) {
+            .container {
+                padding: 32px 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .icon {
+                font-size: 48px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📱</div>
+        <h1>You're Offline</h1>
+        <p class="message">
+            It looks like you've lost your internet connection. Don't worry! You can still browse cached content or try reconnecting.
+        </p>
+
+        <div class="actions">
+            <button class="btn-primary" onclick="location.reload()">Try Again</button>
+            <button class="btn-secondary" onclick="goHome()">Go to Home</button>
+        </div>
+
+        <div class="offline-tips">
+            <h3>Things you can still do offline:</h3>
+            <ul>
+                <li>Browse previously visited pages</li>
+                <li>View product information</li>
+                <li>Read cached blog posts</li>
+                <li>Check your saved wishlist</li>
+            </ul>
+        </div>
+
+        <div class="status" id="status">
+            Waiting for connection...
+        </div>
+    </div>
+
+    <script>
+        // Check connection status
+        function updateStatus() {
+            const statusEl = document.getElementById('status');
+            if (navigator.onLine) {
+                statusEl.textContent = '✓ Connection restored!';
+                statusEl.style.color = '#4CAF50';
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            } else {
+                statusEl.textContent = 'Offline mode • Last updated: ' + new Date().toLocaleTimeString();
+            }
+        }
+
+        function goHome() {
+            window.location.href = '/';
+        }
+
+        // Listen for connection changes
+        window.addEventListener('online', updateStatus);
+        window.addEventListener('offline', updateStatus);
+
+        // Initial check
+        updateStatus();
+
+        // Periodic check
+        setInterval(updateStatus, 3000);
+
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                location.reload();
+            }
+        });
+    </script>
+</body>
+</html>

@@ -64,6 +64,24 @@ return [
             ],
         ],
 
+        'comnestor' => [
+            'driver' => 'pusher',
+            'key' => env('COMNESTOR_APP_KEY'),
+            'secret' => env('COMNESTOR_APP_SECRET'),
+            'app_id' => env('COMNESTOR_APP_ID', 'snackzar'),
+            'options' => [
+                'cluster' => env('COMNESTOR_CLUSTER', 'mt1'),
+                'host' => parse_url(env('COMNESTOR_BASE_URL', 'https://www.comnestor.cloud'), PHP_URL_HOST),
+                'port' => env('COMNESTOR_PORT', 443),
+                'scheme' => env('COMNESTOR_SCHEME', 'https'),
+                'encrypted' => true,
+                'useTLS' => env('COMNESTOR_SCHEME', 'https') === 'https',
+            ],
+            'client_options' => [
+                // Guzzle client options
+            ],
+        ],
+
         'ably' => [
             'driver' => 'ably',
             'key' => env('ABLY_KEY'),

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Category;
 use App\Models\Product;
 use App\Models\Review;
+use App\Modules\Shared\Services\CityLandingPageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Inertia\Inertia;
@@ -187,5 +188,57 @@ class HomeController extends Controller
     public function contact(): Response
     {
         return Inertia::render('Contact');
+    }
+
+    public function cityLanding(string $city, CityLandingPageService $cityLandingPageService): Response
+    {
+        $cityData = $cityLandingPageService->getCityContent($city, 'city');
+
+        if (!$cityData) {
+            abort(404);
+        }
+
+        return Inertia::render('Seo/Landing', [
+            'mode' => 'location',
+            'location' => $cityData,
+            'seo' => $cityLandingPageService->generateSeoData($cityData),
+        ]);
+    }
+
+    public function districtLanding(string $district, CityLandingPageService $cityLandingPageService): Response
+    {
+        $districtData = $cityLandingPageService->getCityContent($district, 'district');
+
+        if (!$districtData) {
+            abort(404);
+        }
+
+        return Inertia::render('Seo/Landing', [
+            'mode' => 'location',
+            'location' => $districtData,
+            'seo' => $cityLandingPageService->generateSeoData($districtData),
+        ]);
+    }
+
+    public function keywordLanding(int $id, CityLandingPageService $cityLandingPageService): Response
+    {
+        $keywordData = $cityLandingPageService->buildKeywordLandingData($id);
+
+        if (!$keywordData) {
+            abort(404);
+        }
+
+        return Inertia::render('Seo/Landing', [
+            'mode' => 'keyword',
+            'keyword' => $keywordData,
+            'seo' => [
+                'title' => $keywordData['title'],
+                'description' => $keywordData['description'],
+                'canonical' => $keywordData['canonical'],
+                'og_title' => $keywordData['og_title'],
+                'og_description' => $keywordData['og_description'],
+                'og_image' => $keywordData['og_image'],
+            ],
+        ]);
     }
 }
