@@ -91,9 +91,8 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
                 <div class="flex items-center gap-3 lg:gap-5 h-16">
 
                     <!-- Logo -->
-                    <Link href="/" class="flex items-center gap-2 shrink-0">
-                        <span class="text-2xl">🥜</span>
-                        <span class="text-lg font-bold text-amber-800 tracking-tight hidden sm:block">Snackzar</span>
+                    <Link href="/" class="flex items-center shrink-0">
+                        <img src="/images/logo/snackzar%20logo.png" alt="Snackzar Logo" class="h-8 w-auto sm:h-10" />
                     </Link>
 
                     <!-- Delivery Location (Desktop) -->

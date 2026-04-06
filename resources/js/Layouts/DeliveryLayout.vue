@@ -69,10 +69,8 @@ function logout() {
             <div class="flex items-center h-[56px] border-b border-[#dfe4eb] flex-shrink-0 relative px-4 lg:px-0">
                 <!-- Inner wrap to align nicely -->
                 <div class="flex items-center w-full" :class="isExpanded ? 'lg:px-4' : 'lg:justify-center'">
-                    <Link href="/delivery/dashboard" class="flex-shrink-0 flex items-center justify-center w-[28px] h-[28px] rounded-full bg-[#ff6c18] text-white">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <rect x="4" y="4" width="16" height="16" rx="4" stroke-width="2.5" />
-                        </svg>
+                    <Link href="/delivery/dashboard" class="flex-shrink-0 flex items-center justify-center w-[44px] h-[28px]" aria-label="Snackzar delivery dashboard">
+                        <img src="/images/logo/snackzar%20logo.png" alt="Snackzar" class="max-h-[28px] w-auto object-contain" />
                     </Link>
                     
                     <!-- Expanded view brand name -->
@@ -170,10 +168,8 @@ function logout() {
                         </svg>
                     </button>
                     <!-- Small Logo visible only on mobile when sidebar is closed -->
-                    <Link href="/delivery/dashboard" class="lg:hidden flex items-center justify-center w-[26px] h-[26px] rounded-full bg-[#ff6c18] text-white shadow-sm ml-1 mr-2">
-                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <rect x="4" y="4" width="16" height="16" rx="4" stroke-width="2.5" />
-                        </svg>
+                    <Link href="/delivery/dashboard" class="lg:hidden flex items-center justify-center w-[44px] h-[26px] shadow-sm ml-1 mr-2" aria-label="Snackzar delivery dashboard">
+                        <img src="/images/logo/snackzar%20logo.png" alt="Snackzar" class="max-h-[26px] w-auto object-contain" />
                     </Link>
                     <div class="hidden md:flex items-center gap-2.5">
                         <span class="text-[15px] font-semibold text-[#142033] select-none">Delivery Panel</span>
