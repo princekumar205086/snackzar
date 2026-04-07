@@ -137,8 +137,8 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
                     </div>
 
                     <!-- Search Bar (Center) -->
-                    <form @submit.prevent="submitSearch" class="hidden lg:flex flex-1 relative">
-                        <div class="flex items-center bg-gray-50 border border-gray-200 rounded-full hover:border-amber-400 focus-within:border-amber-500 focus-within:bg-white transition-all shadow-sm">
+                    <form @submit.prevent="submitSearch" class="hidden lg:flex flex-[1_1_0%] w-full min-w-0 relative">
+                        <div class="flex w-full items-center bg-gray-50 border border-gray-200 rounded-full hover:border-amber-400 focus-within:border-amber-500 focus-within:bg-white transition-all shadow-sm">
                             <svg class="w-4 h-4 ml-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                             </svg>
@@ -159,7 +159,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
                     </form>
 
                     <!-- Right Actions -->
-                    <div class="flex items-center gap-2 shrink-0">
+                    <div class="ml-auto lg:ml-0 flex items-center gap-1.5 sm:gap-2 shrink-0">
 
                         <!-- Profile / Login -->
                         <template v-if="user">
@@ -210,7 +210,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
                             <!-- Cart Button -->
                             <Link
                                 href="/cart"
-                                class="flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-full font-semibold text-sm transition-colors shadow-sm"
+                                class="hidden lg:flex items-center gap-2 bg-amber-600 hover:bg-amber-700 text-white px-4 py-2.5 rounded-full font-semibold text-sm transition-colors shadow-sm"
                             >
                                 <span class="relative inline-flex">
                                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
