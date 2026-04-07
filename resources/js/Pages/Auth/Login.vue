@@ -88,51 +88,55 @@ const submit = () => {
 <template>
     <Head title="Sign In" />
 
-    <div class="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50 flex">
+    <div class="relative min-h-screen overflow-hidden bg-[#fff8ef] flex">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(251,146,60,0.16),_transparent_34%),radial-gradient(circle_at_bottom_right,_rgba(245,158,11,0.14),_transparent_30%),linear-gradient(135deg,_#fff8ef_0%,_#fffdf8_45%,_#fff4e7_100%)]"></div>
+        <div class="absolute -left-24 top-20 h-72 w-72 rounded-full bg-amber-300/20 blur-3xl"></div>
+        <div class="absolute -right-20 bottom-10 h-80 w-80 rounded-full bg-orange-300/20 blur-3xl"></div>
+
         <!-- Left Branding Panel (hidden on mobile) -->
-        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-amber-700 via-amber-800 to-amber-950 relative overflow-hidden items-center justify-center p-12">
-            <div class="absolute inset-0 opacity-10">
-                <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.4&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"></div>
-            </div>
-            <div class="relative z-10 max-w-md text-center">
-                <div class="text-7xl mb-6">🥜</div>
-                <h2 class="text-4xl font-bold text-white mb-4">Welcome Back!</h2>
-                <p class="text-amber-200 text-lg leading-relaxed mb-8">
-                    Sign in to explore Bihar's finest Makhana, traditional namkeen, and artisanal snacks delivered fresh to your doorstep.
+        <div class="relative hidden lg:flex lg:w-[46%] items-center justify-center overflow-hidden bg-gradient-to-br from-[#8b3f0b] via-[#b45309] to-[#d97706] px-12 py-14">
+            <div class="absolute inset-0 opacity-15" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.35&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"></div>
+            <div class="absolute inset-0 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),transparent_32%,rgba(255,255,255,0.08)_74%,transparent)]"></div>
+            <div class="relative z-10 max-w-xl text-center text-white">
+                <div class="inline-flex items-center justify-center rounded-[1.75rem] bg-white/12 px-7 py-6 ring-1 ring-white/15 shadow-2xl shadow-black/10 backdrop-blur-sm">
+                    <img src="/images/logo/snackzar%20logo.png" alt="Snackzar" class="h-16 w-auto drop-shadow-lg" />
+                </div>
+                <h2 class="mt-8 text-4xl font-bold tracking-tight text-white">Welcome Back</h2>
+                <p class="mx-auto mt-4 max-w-lg text-lg leading-8 text-amber-100/90">
+                    Sign in to continue with Bihar's premium snacks, from crisp makhana to traditional namkeen and fresh artisanal picks.
                 </p>
-                <div class="flex justify-center gap-6 text-amber-300">
-                    <div class="text-center">
-                        <p class="text-2xl font-bold text-white">50+</p>
-                        <p class="text-xs">Products</p>
+                <div class="mt-10 grid grid-cols-3 gap-4 text-left">
+                    <div class="rounded-2xl border border-white/15 bg-white/10 px-4 py-4 backdrop-blur-sm">
+                        <p class="text-2xl font-semibold text-white">50+</p>
+                        <p class="mt-1 text-xs uppercase tracking-[0.2em] text-amber-100/80">Products</p>
                     </div>
-                    <div class="w-px bg-amber-600"></div>
-                    <div class="text-center">
-                        <p class="text-2xl font-bold text-white">500+</p>
-                        <p class="text-xs">Customers</p>
+                    <div class="rounded-2xl border border-white/15 bg-white/10 px-4 py-4 backdrop-blur-sm">
+                        <p class="text-2xl font-semibold text-white">500+</p>
+                        <p class="mt-1 text-xs uppercase tracking-[0.2em] text-amber-100/80">Customers</p>
                     </div>
-                    <div class="w-px bg-amber-600"></div>
-                    <div class="text-center">
-                        <p class="text-2xl font-bold text-white">4.8★</p>
-                        <p class="text-xs">Rating</p>
+                    <div class="rounded-2xl border border-white/15 bg-white/10 px-4 py-4 backdrop-blur-sm">
+                        <p class="text-2xl font-semibold text-white">4.8★</p>
+                        <p class="mt-1 text-xs uppercase tracking-[0.2em] text-amber-100/80">Rating</p>
                     </div>
                 </div>
             </div>
         </div>
 
         <!-- Right Form Panel -->
-        <div class="flex-1 flex items-center justify-center px-4 sm:px-8 py-12">
-            <div class="w-full max-w-md">
+        <div class="relative z-10 flex-1 flex items-center justify-center px-4 sm:px-8 py-10 lg:py-12">
+            <div class="w-full max-w-md rounded-[2rem] border border-white/70 bg-white/85 p-6 sm:p-8 shadow-[0_24px_90px_rgba(180,83,9,0.12)] backdrop-blur-xl">
                 <!-- Mobile Logo -->
-                <div class="lg:hidden text-center mb-8">
-                    <Link href="/" class="inline-flex items-center gap-2">
-                        <span class="text-3xl">🥜</span>
-                        <span class="text-2xl font-bold text-amber-900">Snackzar</span>
+                <div class="lg:hidden text-center mb-6">
+                    <Link href="/" class="inline-flex items-center justify-center rounded-[1.5rem] bg-white px-5 py-3 shadow-sm ring-1 ring-amber-100">
+                        <img src="/images/logo/snackzar%20logo.png" alt="Snackzar" class="h-12 w-auto sm:h-14" />
                     </Link>
+                    <p class="mt-3 text-xs font-medium uppercase tracking-[0.24em] text-amber-700/70">Premium Bihari snacks</p>
                 </div>
 
-                <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-gray-900">Sign In</h1>
-                    <p class="text-gray-500 mt-2">Enter your credentials to access your account</p>
+                <div class="mb-7">
+                    <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">Secure access</span>
+                    <h1 class="mt-4 text-3xl font-bold text-gray-900">Sign In</h1>
+                    <p class="mt-2 text-gray-500">Enter your credentials to access your account</p>
                 </div>
 
                 <!-- Status Message (e.g., password reset link sent) -->
@@ -143,7 +147,7 @@ const submit = () => {
                 <!-- Google Sign In -->
                 <a
                     :href="googleAuthUrl"
-                    class="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-all mb-6"
+                    class="mb-6 flex w-full items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 font-medium text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50"
                 >
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -178,7 +182,7 @@ const submit = () => {
                                 type="email"
                                 required
                                 autofocus
-                                class="block w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-amber-500 focus:ring-amber-500 text-gray-900 placeholder-gray-400"
+                                class="block w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-4 py-3 text-gray-900 placeholder-gray-400 shadow-sm focus:border-amber-500 focus:ring-amber-500"
                                 placeholder="you@example.com"
                             />
                             <input v-model="form.redirect" type="hidden" />
@@ -204,7 +208,7 @@ const submit = () => {
                                 v-model="form.password"
                                 :type="showPassword ? 'text' : 'password'"
                                 required
-                                class="block w-full pl-10 pr-12 py-3 rounded-xl border border-gray-200 focus:border-amber-500 focus:ring-amber-500 text-gray-900 placeholder-gray-400"
+                                class="block w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-12 py-3 text-gray-900 placeholder-gray-400 shadow-sm focus:border-amber-500 focus:ring-amber-500"
                                 placeholder="••••••••"
                             />
                             <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
@@ -233,7 +237,7 @@ const submit = () => {
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="w-full bg-amber-600 text-white py-3 px-4 rounded-xl font-semibold text-lg hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/25 disabled:opacity-50 disabled:cursor-not-allowed"
+                        class="w-full rounded-2xl bg-amber-600 px-4 py-3 text-lg font-semibold text-white shadow-lg shadow-amber-600/25 transition-all hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <span v-if="form.processing" class="flex items-center justify-center gap-2">
                             <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">

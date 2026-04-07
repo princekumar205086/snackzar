@@ -9,6 +9,7 @@ const { cartCount, cartTotal } = useCart();
 const loginUrl = computed(() => `/login?redirect=${encodeURIComponent(page.url || '/cart')}`);
 
 const mobileMenuOpen = ref(false);
+const mobileSearchOpen = ref(false);
 const searchQuery = ref('');
 const profileMenuOpen = ref(false);
 const pincodeOpen = ref(false);
@@ -23,6 +24,21 @@ const submitSearch = () => {
     if (searchQuery.value.trim()) {
         router.get('/products', { search: searchQuery.value.trim() });
         mobileMenuOpen.value = false;
+        mobileSearchOpen.value = false;
+    }
+};
+
+const toggleMobileMenu = () => {
+    mobileMenuOpen.value = !mobileMenuOpen.value;
+    if (mobileMenuOpen.value) {
+        mobileSearchOpen.value = false;
+    }
+};
+
+const toggleMobileSearch = () => {
+    mobileSearchOpen.value = !mobileSearchOpen.value;
+    if (mobileSearchOpen.value) {
+        mobileMenuOpen.value = false;
     }
 };
 
@@ -30,6 +46,8 @@ const handleKeydown = (e) => {
     if (e.key === 'Escape') {
         pincodeOpen.value = false;
         profileMenuOpen.value = false;
+        mobileMenuOpen.value = false;
+        mobileSearchOpen.value = false;
     }
 };
 
@@ -92,7 +110,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
 
                     <!-- Logo -->
                     <Link href="/" class="flex items-center shrink-0">
-                        <img src="/images/logo/snackzar%20logo.png" alt="Snackzar Logo" class="h-8 w-auto sm:h-10" />
+                        <img src="/images/logo/snackzar%20logo.png" alt="Snackzar Logo" class="h-10 w-auto sm:h-11 lg:h-12 xl:h-14" />
                     </Link>
 
                     <!-- Delivery Location (Desktop) -->
@@ -119,7 +137,7 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
                     </div>
 
                     <!-- Search Bar (Center) -->
-                    <form @submit.prevent="submitSearch" class="flex-1 relative">
+                    <form @submit.prevent="submitSearch" class="hidden lg:flex flex-1 relative">
                         <div class="flex items-center bg-gray-50 border border-gray-200 rounded-full hover:border-amber-400 focus-within:border-amber-500 focus-within:bg-white transition-all shadow-sm">
                             <svg class="w-4 h-4 ml-4 text-gray-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
@@ -220,10 +238,28 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
                             </Link>
                         </template>
 
+                        <!-- Mobile search toggle -->
+                        <button
+                            @click="toggleMobileSearch"
+                            class="lg:hidden flex items-center justify-center w-10 h-10 text-gray-800 bg-gray-100 hover:bg-amber-100 hover:text-amber-700 rounded-xl transition-colors border border-gray-200"
+                            :aria-pressed="mobileSearchOpen"
+                            aria-label="Open search"
+                        >
+                            <svg v-if="!mobileSearchOpen" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-4.35-4.35"/>
+                                <circle cx="11" cy="11" r="7" stroke-width="2.5" />
+                            </svg>
+                            <svg v-else class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                            </svg>
+                        </button>
+
                         <!-- Mobile menu toggle -->
                         <button
-                            @click="mobileMenuOpen = !mobileMenuOpen"
+                            @click="toggleMobileMenu"
                             class="lg:hidden flex items-center justify-center w-10 h-10 text-gray-800 bg-gray-100 hover:bg-amber-100 hover:text-amber-700 rounded-xl transition-colors border border-gray-200"
+                            :aria-pressed="mobileMenuOpen"
+                            aria-label="Open menu"
                         >
                             <svg v-if="!mobileMenuOpen" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 6h16M4 12h16M4 18h16"/>
@@ -234,6 +270,37 @@ onUnmounted(() => document.removeEventListener('keydown', handleKeydown));
                         </button>
                     </div>
                 </div>
+
+                <Transition
+                    enter-active-class="transition ease-out duration-200"
+                    enter-from-class="opacity-0 -translate-y-2"
+                    enter-to-class="opacity-100 translate-y-0"
+                    leave-active-class="transition ease-in duration-150"
+                    leave-from-class="opacity-100 translate-y-0"
+                    leave-to-class="opacity-0 -translate-y-2"
+                >
+                    <div v-if="mobileSearchOpen" class="lg:hidden border-t border-gray-100 bg-white shadow-lg px-4 py-3">
+                        <form @submit.prevent="submitSearch" class="flex items-center gap-2">
+                            <div class="flex-1 relative">
+                                <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                                </svg>
+                                <input
+                                    v-model="searchQuery"
+                                    type="text"
+                                    placeholder='Search products...'
+                                    class="w-full pl-10 pr-4 py-3 text-sm border border-gray-200 rounded-2xl focus:border-amber-500 focus:ring-1 focus:ring-amber-500 focus:outline-none"
+                                />
+                            </div>
+                            <button
+                                type="submit"
+                                class="px-4 py-3 bg-amber-600 text-white text-sm font-semibold rounded-2xl hover:bg-amber-700 transition-colors"
+                            >
+                                Go
+                            </button>
+                        </form>
+                    </div>
+                </Transition>
             </div>
 
             <!-- Mobile Menu -->

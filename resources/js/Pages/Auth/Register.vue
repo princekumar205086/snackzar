@@ -22,33 +22,38 @@ const submit = () => {
 <template>
     <Head title="Create Account" />
 
-    <div class="min-h-screen bg-gradient-to-br from-amber-50 via-white to-orange-50 flex">
+    <div class="relative min-h-screen overflow-hidden bg-[#fff8ef] flex">
+        <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(251,146,60,0.16),_transparent_34%),radial-gradient(circle_at_bottom_right,_rgba(245,158,11,0.14),_transparent_30%),linear-gradient(135deg,_#fff8ef_0%,_#fffdf8_45%,_#fff4e7_100%)]"></div>
+        <div class="absolute -left-24 top-20 h-72 w-72 rounded-full bg-amber-300/20 blur-3xl"></div>
+        <div class="absolute -right-20 bottom-10 h-80 w-80 rounded-full bg-orange-300/20 blur-3xl"></div>
+
         <!-- Left Branding Panel (hidden on mobile) -->
-        <div class="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-amber-700 via-amber-800 to-amber-950 relative overflow-hidden items-center justify-center p-12">
-            <div class="absolute inset-0 opacity-10">
-                <div class="absolute inset-0" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.4&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"></div>
-            </div>
-            <div class="relative z-10 max-w-md text-center">
-                <div class="text-7xl mb-6">🥜</div>
-                <h2 class="text-4xl font-bold text-white mb-4">Join Snackzar</h2>
-                <p class="text-amber-200 text-lg leading-relaxed mb-8">
+        <div class="relative hidden lg:flex lg:w-[46%] items-center justify-center overflow-hidden bg-gradient-to-br from-[#8b3f0b] via-[#b45309] to-[#d97706] px-12 py-14">
+            <div class="absolute inset-0 opacity-15" style="background-image: url('data:image/svg+xml,%3Csvg width=&quot;60&quot; height=&quot;60&quot; viewBox=&quot;0 0 60 60&quot; xmlns=&quot;http://www.w3.org/2000/svg&quot;%3E%3Cg fill=&quot;none&quot; fill-rule=&quot;evenodd&quot;%3E%3Cg fill=&quot;%23ffffff&quot; fill-opacity=&quot;0.35&quot;%3E%3Cpath d=&quot;M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z&quot;/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')"></div>
+            <div class="absolute inset-0 bg-[linear-gradient(160deg,rgba(255,255,255,0.06),transparent_32%,rgba(255,255,255,0.08)_74%,transparent)]"></div>
+            <div class="relative z-10 max-w-xl text-center text-white">
+                <div class="inline-flex items-center justify-center rounded-[1.75rem] bg-white/12 px-7 py-6 ring-1 ring-white/15 shadow-2xl shadow-black/10 backdrop-blur-sm">
+                    <img src="/images/logo/snackzar%20logo.png" alt="Snackzar" class="h-16 w-auto drop-shadow-lg" />
+                </div>
+                <h2 class="mt-8 text-4xl font-bold tracking-tight text-white">Join Snackzar</h2>
+                <p class="mx-auto mt-4 max-w-lg text-lg leading-8 text-amber-100/90">
                     Create your account and start exploring Bihar's authentic Makhana, namkeen, and premium snacks.
                 </p>
-                <div class="space-y-3 text-left max-w-xs mx-auto">
-                    <div class="flex items-center gap-3 text-amber-200">
-                        <svg class="w-5 h-5 text-green-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <div class="mt-10 space-y-3 text-left">
+                    <div class="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-4 backdrop-blur-sm text-amber-100/90">
+                        <svg class="w-5 h-5 text-green-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                         <span class="text-sm">Free delivery on orders above ₹499</span>
                     </div>
-                    <div class="flex items-center gap-3 text-amber-200">
-                        <svg class="w-5 h-5 text-green-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-4 backdrop-blur-sm text-amber-100/90">
+                        <svg class="w-5 h-5 text-green-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                         <span class="text-sm">Track orders in real-time</span>
                     </div>
-                    <div class="flex items-center gap-3 text-amber-200">
-                        <svg class="w-5 h-5 text-green-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <div class="flex items-center gap-3 rounded-2xl border border-white/15 bg-white/10 px-4 py-4 backdrop-blur-sm text-amber-100/90">
+                        <svg class="w-5 h-5 text-green-300 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                         </svg>
                         <span class="text-sm">Exclusive member-only deals</span>
@@ -58,25 +63,26 @@ const submit = () => {
         </div>
 
         <!-- Right Form Panel -->
-        <div class="flex-1 flex items-center justify-center px-4 sm:px-8 py-12">
-            <div class="w-full max-w-md">
+        <div class="relative z-10 flex-1 flex items-center justify-center px-4 sm:px-8 py-10 lg:py-12">
+            <div class="w-full max-w-md rounded-[2rem] border border-white/70 bg-white/85 p-6 sm:p-8 shadow-[0_24px_90px_rgba(180,83,9,0.12)] backdrop-blur-xl">
                 <!-- Mobile Logo -->
-                <div class="lg:hidden text-center mb-8">
-                    <Link href="/" class="inline-flex items-center gap-2">
-                        <span class="text-3xl">🥜</span>
-                        <span class="text-2xl font-bold text-amber-900">Snackzar</span>
+                <div class="lg:hidden text-center mb-6">
+                    <Link href="/" class="inline-flex items-center justify-center rounded-[1.5rem] bg-white px-5 py-3 shadow-sm ring-1 ring-amber-100">
+                        <img src="/images/logo/snackzar%20logo.png" alt="Snackzar" class="h-12 w-auto sm:h-14" />
                     </Link>
+                    <p class="mt-3 text-xs font-medium uppercase tracking-[0.24em] text-amber-700/70">Premium Bihari snacks</p>
                 </div>
 
-                <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-gray-900">Create Account</h1>
-                    <p class="text-gray-500 mt-2">Fill in your details to get started</p>
+                <div class="mb-7">
+                    <span class="inline-flex items-center rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-amber-700">Create your account</span>
+                    <h1 class="mt-4 text-3xl font-bold text-gray-900">Create Account</h1>
+                    <p class="mt-2 text-gray-500">Fill in your details to get started</p>
                 </div>
 
                 <!-- Google Sign Up -->
                 <a
                     href="/auth/google"
-                    class="w-full flex items-center justify-center gap-3 bg-white border-2 border-gray-200 text-gray-700 py-3 px-4 rounded-xl font-medium hover:bg-gray-50 hover:border-gray-300 transition-all mb-6"
+                    class="mb-6 flex w-full items-center justify-center gap-3 rounded-2xl border border-gray-200 bg-white px-4 py-3 font-medium text-gray-700 transition-all hover:border-gray-300 hover:bg-gray-50"
                 >
                     <svg class="w-5 h-5" viewBox="0 0 24 24">
                         <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 01-2.2 3.32v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.1z" fill="#4285F4"/>
@@ -111,7 +117,7 @@ const submit = () => {
                                 type="text"
                                 required
                                 autofocus
-                                class="block w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-amber-500 focus:ring-amber-500 text-gray-900 placeholder-gray-400"
+                                class="block w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-4 py-3 text-gray-900 placeholder-gray-400 shadow-sm focus:border-amber-500 focus:ring-amber-500"
                                 placeholder="Your name"
                             />
                         </div>
@@ -131,7 +137,7 @@ const submit = () => {
                                 v-model="form.email"
                                 type="email"
                                 required
-                                class="block w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-amber-500 focus:ring-amber-500 text-gray-900 placeholder-gray-400"
+                                class="block w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-4 py-3 text-gray-900 placeholder-gray-400 shadow-sm focus:border-amber-500 focus:ring-amber-500"
                                 placeholder="you@example.com"
                             />
                         </div>
@@ -150,7 +156,7 @@ const submit = () => {
                                 id="phone"
                                 v-model="form.phone"
                                 type="tel"
-                                class="block w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-amber-500 focus:ring-amber-500 text-gray-900 placeholder-gray-400"
+                                class="block w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-4 py-3 text-gray-900 placeholder-gray-400 shadow-sm focus:border-amber-500 focus:ring-amber-500"
                                 placeholder="9876543210"
                             />
                         </div>
@@ -170,7 +176,7 @@ const submit = () => {
                                 v-model="form.password"
                                 :type="showPassword ? 'text' : 'password'"
                                 required
-                                class="block w-full pl-10 pr-12 py-3 rounded-xl border border-gray-200 focus:border-amber-500 focus:ring-amber-500 text-gray-900 placeholder-gray-400"
+                                class="block w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-12 py-3 text-gray-900 placeholder-gray-400 shadow-sm focus:border-amber-500 focus:ring-amber-500"
                                 placeholder="Min 8 characters"
                             />
                             <button type="button" @click="showPassword = !showPassword" class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
@@ -199,7 +205,7 @@ const submit = () => {
                                 v-model="form.password_confirmation"
                                 :type="showPassword ? 'text' : 'password'"
                                 required
-                                class="block w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:border-amber-500 focus:ring-amber-500 text-gray-900 placeholder-gray-400"
+                                class="block w-full rounded-2xl border border-gray-200 bg-white pl-10 pr-4 py-3 text-gray-900 placeholder-gray-400 shadow-sm focus:border-amber-500 focus:ring-amber-500"
                                 placeholder="••••••••"
                             />
                         </div>
@@ -208,7 +214,7 @@ const submit = () => {
                     <button
                         type="submit"
                         :disabled="form.processing"
-                        class="w-full bg-amber-600 text-white py-3 px-4 rounded-xl font-semibold text-lg hover:bg-amber-700 transition-all shadow-lg shadow-amber-600/25 disabled:opacity-50 disabled:cursor-not-allowed mt-2"
+                        class="mt-2 w-full rounded-2xl bg-amber-600 px-4 py-3 text-lg font-semibold text-white shadow-lg shadow-amber-600/25 transition-all hover:bg-amber-700 disabled:cursor-not-allowed disabled:opacity-50"
                     >
                         <span v-if="form.processing" class="flex items-center justify-center gap-2">
                             <svg class="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
